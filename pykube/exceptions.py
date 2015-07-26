@@ -1,0 +1,2 @@
+class KubernetesError(Exception):
+    pass
