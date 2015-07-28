@@ -8,10 +8,11 @@ from .exceptions import KubernetesError
 
 class APIClient(object):
 
-    def __init__(self, kubeconfig_path, cluster_name, user_name, version="v1"):
+    def __init__(self, kubeconfig_path, cluster_name, user_name, namespace="default", version="v1"):
         self.kubeconfig_path = kubeconfig_path
         self.cluster_name = cluster_name
         self.user_name = user_name
+        self.namespace = namespace
         self.version = version
 
         self.session = self.build_session()
