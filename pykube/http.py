@@ -8,10 +8,11 @@ from .exceptions import KubernetesError
 
 class APIClient(object):
 
-    def __init__(self, kubeconfig_path, cluster_name, user_name, namespace="default", version="v1"):
+    def __init__(self, kubeconfig_path, cluster_name, user_name, url=None, namespace="default", version="v1"):
         self.kubeconfig_path = kubeconfig_path
         self.cluster_name = cluster_name
         self.user_name = user_name
+        self.url = url
         self.namespace = namespace
         self.version = version
 
@@ -31,6 +32,10 @@ class APIClient(object):
         ca_cert_file = "/tmp/k8s-ca-cert.pem"
         with open(ca_cert_file, "wb") as fp:
             fp.write(base64.b64decode(cluster["cluster"]["certificate-authority-data"]))
+
+        # set URL if needed
+        if self.url is None:
+            self.url = cluster["cluster"]["server"]
 
         # prepare client certificate
         for user in kubeconfig["users"]:
