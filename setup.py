@@ -1,11 +1,15 @@
 from setuptools import setup, find_packages
 
 
+with open("README.rst") as fp:
+    long_description = fp.read()
+
+
 setup(
     name="pykube",
     version="0.1.0",
-    description="",
-    long_description="",
+    description="Python client library for Kubernetes",
+    long_description=long_description,
     author="Eldarion, Inc.",
     author_email="development@eldarion.com",
     license="Apache",
