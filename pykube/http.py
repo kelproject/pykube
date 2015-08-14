@@ -6,7 +6,7 @@ import yaml
 from .exceptions import KubernetesError
 
 
-class APIClient(object):
+class HTTPClient(object):
 
     def __init__(self, kubeconfig_path, cluster_name, user_name, url=None, namespace="default", version="v1"):
         self.kubeconfig_path = kubeconfig_path
