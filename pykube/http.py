@@ -1,60 +1,21 @@
-import base64
-
 import requests
-import yaml
-
-from .exceptions import KubernetesError
 
 
 class HTTPClient(object):
 
-    def __init__(self, kubeconfig_path, cluster_name, user_name, url=None, namespace="default", version="v1"):
-        self.kubeconfig_path = kubeconfig_path
-        self.cluster_name = cluster_name
-        self.user_name = user_name
+    def __init__(self, url=None, namespace="default", version="v1", verify=True, token=None):
         self.url = url
         self.namespace = namespace
         self.version = version
-
+        self.verify = verify
+        self.token = token
         self.session = self.build_session()
 
     def build_session(self):
-        with open(self.kubeconfig_path, "rb") as fp:
-            kubeconfig = yaml.load(fp.read())
-
-        # prepare the CA bundle
-        for cluster in kubeconfig["clusters"]:
-            if cluster["name"] == self.cluster_name:
-                break
-        else:
-            raise KubernetesError("cannot find cluster `{}` cluster in {}".format(self.cluster_name, self.kubeconfig_path))
-        # @@@ temporary file? need to investigate when this is opened and read by urllib3
-        ca_cert_file = "/tmp/k8s-ca-cert.pem"
-        with open(ca_cert_file, "wb") as fp:
-            fp.write(base64.b64decode(cluster["cluster"]["certificate-authority-data"]))
-
-        # set URL if needed
-        if self.url is None:
-            self.url = cluster["cluster"]["server"]
-
-        # prepare client certificate
-        for user in kubeconfig["users"]:
-            if user["name"] == self.user_name:
-                break
-        else:
-            raise KubernetesError("cannot find user `{}` cluster in {}".format(self.user_name, self.kubeconfig_path))
-        # @@@ temporary files? need to investigate when these are opened and read by urllib3
-        client_key_file = "/tmp/k8s-client-key.pem"
-        client_cert_file = "/tmp/k8s-client-cert.pem"
-        with open(client_key_file, "wb") as fp:
-            fp.write(base64.b64decode(user["user"]["client-key-data"]))
-        with open(client_cert_file, "wb") as fp:
-            fp.write(base64.b64decode(user["user"]["client-certificate-data"]))
-
-        # prepare requests session object
         s = requests.Session()
-        s.verify = ca_cert_file
-        s.cert = (client_cert_file, client_key_file)
+        if self.token is not None:
+            s.headers["Authorization"] = "Bearer {}".format(self.token)
+        s.verify = self.verify
         return s
 
     def get_kwargs(self, **kwargs):
