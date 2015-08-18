@@ -21,7 +21,7 @@ class HTTPClient(object):
         kwargs["url"] = "{}/api/{}/namespaces/{}{}".format(
             self.url,
             self.version,
-            kwargs.get("namespace", "default"),
+            kwargs.pop("namespace", "default"),
             kwargs.get("url", "")
         )
         return kwargs
