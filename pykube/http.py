@@ -3,9 +3,8 @@ import requests
 
 class HTTPClient(object):
 
-    def __init__(self, url=None, namespace="default", version="v1", verify=True, token=None):
+    def __init__(self, url=None, version="v1", verify=True, token=None):
         self.url = url
-        self.namespace = namespace
         self.version = version
         self.verify = verify
         self.token = token
@@ -22,7 +21,7 @@ class HTTPClient(object):
         kwargs["url"] = "{}/api/{}/namespaces/{}{}".format(
             self.url,
             self.version,
-            self.namespace,
+            kwargs.get("namespace", "default"),
             kwargs.get("url", "")
         )
         return kwargs
