@@ -17,8 +17,8 @@ class HTTPClient(object):
             s.headers["Authorization"] = "Bearer {}".format(self.config.user["token"])
         else:
             s.cert = (
-                self.config.user["client-key"].filename(),
                 self.config.user["client-certificate"].filename(),
+                self.config.user["client-key"].filename(),
             )
         return s
 
