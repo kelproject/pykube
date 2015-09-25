@@ -5,6 +5,7 @@ class HTTPClient(object):
 
     def __init__(self, config, version="v1"):
         self.config = config
+        self.url = self.config.cluster["server"]
         self.version = version
         self.session = self.build_session()
 

@@ -30,6 +30,8 @@ class KubeConfig(object):
             cs = {}
             for cr in self.doc["clusters"]:
                 cs[cr["name"]] = c = copy.deepcopy(cr["cluster"])
+                if "server" not in c:
+                    c["server"] = "http://localhost"
                 BytesOrFile.maybe_set(c, "certificate-authority")
             self._clusters = cs
         return self._clusters
@@ -68,7 +70,7 @@ class KubeConfig(object):
         if self.current_context is None:
             raise Exception("current context not set; call set_current_context")
         self.parse()
-        return self.clusters[self.contexts[self.current_context]["user"]]
+        return self.users[self.contexts[self.current_context]["user"]]
 
 
 class BytesOrFile(object):
@@ -78,7 +80,7 @@ class BytesOrFile(object):
         file_key = key
         data_key = "{}-data".format(key)
         if data_key in d:
-            d[file_key] = cls(data_key)
+            d[file_key] = cls(d[data_key])
             del d[data_key]
         elif file_key in d:
             d[file_key] = cls(d[file_key])
