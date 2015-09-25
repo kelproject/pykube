@@ -3,18 +3,22 @@ import requests
 
 class HTTPClient(object):
 
-    def __init__(self, url=None, version="v1", verify=True, token=None):
-        self.url = url
+    def __init__(self, config, version="v1"):
+        self.config = config
         self.version = version
-        self.verify = verify
-        self.token = token
         self.session = self.build_session()
 
     def build_session(self):
         s = requests.Session()
-        if self.token is not None:
-            s.headers["Authorization"] = "Bearer {}".format(self.token)
-        s.verify = self.verify
+        if "certificate-authority" in self.config.cluster:
+            s.verify = self.config.cluster["certificate-authority"].filename()
+        if "token" in self.config.user and self.config.user["token"]:
+            s.headers["Authorization"] = "Bearer {}".format(self.config.user["token"])
+        else:
+            s.cert = (
+                self.config.user["client-key"].filename(),
+                self.config.user["client-certificate"].filename(),
+            )
         return s
 
     def get_kwargs(self, **kwargs):
