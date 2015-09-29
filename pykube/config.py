@@ -60,16 +60,16 @@ class KubeConfig(object):
 
     @property
     def cluster(self):
+        self.parse()
         if self.current_context is None:
             raise Exception("current context not set; call set_current_context")
-        self.parse()
         return self.clusters[self.contexts[self.current_context]["cluster"]]
 
     @property
     def user(self):
+        self.parse()
         if self.current_context is None:
             raise Exception("current context not set; call set_current_context")
-        self.parse()
         return self.users[self.contexts[self.current_context]["user"]]
 
 
