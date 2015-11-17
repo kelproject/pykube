@@ -1,3 +1,5 @@
+import posixpath
+
 import requests
 
 
@@ -23,12 +25,20 @@ class HTTPClient(object):
         return s
 
     def get_kwargs(self, **kwargs):
-        kwargs["url"] = "{}/api/{}/namespaces/{}{}".format(
-            self.url,
+        bits = [
+            "/api",
             self.version,
-            kwargs.pop("namespace", "default"),
-            kwargs.get("url", "")
-        )
+        ]
+        if "namespace" in kwargs:
+            bits.extend([
+                "namespaces",
+                kwargs.pop("namespace"),
+            ])
+        url = kwargs.get("url", "")
+        if url.startswith("/"):
+            url = url[1:]
+        bits.append(url)
+        kwargs["url"] = self.url + posixpath.join(*bits)
         return kwargs
 
     def request(self, *args, **kwargs):
