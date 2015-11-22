@@ -16,7 +16,7 @@ class KubeConfig(object):
         if self.doc is not None:
             return
         with open(self.filename) as f:
-            self.doc = yaml.load(f.read())
+            self.doc = yaml.safe_load(f.read())
         if "current-context" in self.doc and self.doc["current-context"]:
             self.set_current_context(self.doc["current-context"])
 
