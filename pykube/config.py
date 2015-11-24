@@ -5,8 +5,11 @@ Configuration code.
 import base64
 import copy
 import tempfile
+import os
 
 import yaml
+
+from pykube import exceptions
 
 
 class KubeConfig(object):
@@ -21,6 +24,9 @@ class KubeConfig(object):
         :Parameters:
            - `filename`: The full path to the configuration file
         """
+        if not os.path.isfile(filename):
+            raise exceptions.PyKubeError(
+                "Configuration file {} not found".format(filename))
         self.filename = filename
         self.doc = None
         self.current_context = None
@@ -98,7 +104,7 @@ class KubeConfig(object):
         """
         self.parse()
         if self.current_context is None:
-            raise Exception("current context not set; call set_current_context")
+            raise exceptions.PyKubeError("current context not set; call set_current_context")
         return self.clusters[self.contexts[self.current_context]["cluster"]]
 
     @property
@@ -108,7 +114,7 @@ class KubeConfig(object):
         """
         self.parse()
         if self.current_context is None:
-            raise Exception("current context not set; call set_current_context")
+            raise exceptions.PyKubeError("current context not set; call set_current_context")
         return self.users[self.contexts[self.current_context]["user"]]
 
 

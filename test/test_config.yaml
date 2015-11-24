@@ -1,0 +1,14 @@
+# TODO: Replace with a more realistic example
+clusters:
+    - name: thecluster
+      cluster: {}
+users:
+    - name: admin
+      user: data
+contexts:
+    - name: thename
+      context:
+        cluster: thecluster
+        user: admin
+    - name: second
+      context: secondcontext
