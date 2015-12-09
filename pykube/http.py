@@ -12,17 +12,19 @@ class HTTPClient(object):
     Client for interfacing with the Kubernetes API.
     """
 
-    def __init__(self, config, version="v1"):
+    def __init__(self, config, version="v1", api_base="/api"):
         """
         Creates a new instance of the HTTPClient.
 
         :Parameters:
            - `config`: The configuration instance
            - `version`: The version of the API to use
+           - `api_base`: The base location for API requests
         """
         self.config = config
         self.url = self.config.cluster["server"]
         self.version = version
+        self.api_base = api_base
         self.session = self.build_session()
 
     def build_session(self):
@@ -49,7 +51,7 @@ class HTTPClient(object):
            - `kwargs`: All keyword arguments to build a kubernetes API endpoint
         """
         bits = [
-            "/api",
+            self.api_base,
             self.version,
         ]
         if "namespace" in kwargs:
