@@ -1,3 +1,6 @@
+from urllib.parse import urlencode
+
+
 everything = object()
 
 
@@ -23,8 +26,12 @@ class Query:
     @property
     def query_cache(self):
         if not hasattr(self, "_query_cache"):
+            params = {}
+            if self.selector is not everything:
+                params["labelSelector"] = self.selector
+            query_string = urlencode(params)
             r = self.api.get(
-                url=self.endpoint,
+                url="{}{}".format(self.endpoint, "?{}".format(query_string) if query_string else ""),
                 namespace=self.namespace,
             )
             r.raise_for_status()
