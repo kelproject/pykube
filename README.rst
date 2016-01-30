@@ -38,6 +38,13 @@ A simple query for all ready pods in a custom namespace::
     pods = Pod.objects(api).filter(namespace="gondor-system")
     ready_pods = filter(operator.attrgetter("ready"), pods)
 
+Selector query::
+
+    pods = Pod.objects(api).filter(
+        namespace="gondor-system",
+        selector="gondor.io/name in (api-web,api-worker)",
+    )
+
 Requirements
 ============
 
