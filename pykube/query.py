@@ -1,4 +1,4 @@
-from urllib.parse import urlencode
+from six.moves.urllib.parse import urlencode
 
 
 everything = object()
