@@ -20,6 +20,23 @@ Features
 ========
 
 * HTTP interface using requests using kubeconfig for authentication
+* Python native querying of Kubernetes API objects
+
+Usage
+=====
+
+A simple query for all ready pods in a custom namespace::
+
+    import operator
+
+    from pykube.config import KubeConfig
+    from pykube.http import HTTPClient
+    from pykube.objects import Pod
+
+
+    api = HTTPClient(KubeConfig.from_file("/Users/<username>/.kube/config"))
+    pods = Pod.objects(api).filter(namespace="gondor-system")
+    ready_pods = filter(operator.attrgetter("ready"), pods)
 
 Requirements
 ============
