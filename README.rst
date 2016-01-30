@@ -42,7 +42,7 @@ Selector query::
 
     pods = Pod.objects(api).filter(
         namespace="gondor-system",
-        selector="gondor.io/name in (api-web,api-worker)",
+        selector={"gondor.io/name__in": {"api-web", "api-worker"}},
     )
 
 Requirements
