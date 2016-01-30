@@ -1,3 +1,5 @@
+from .query import ObjectManager
+
 
 class APIObject:
 
@@ -15,6 +17,8 @@ class APIObject:
 
 class ReplicationController(APIObject):
 
+    objects = ObjectManager("replicationcontrollers")
+
     @property
     def replicas(self):
         return self.obj["spec"]["replicas"]
@@ -25,6 +29,8 @@ class ReplicationController(APIObject):
 
 
 class Pod(APIObject):
+
+    objects = ObjectManager("pods")
 
     @property
     def ready(self):
