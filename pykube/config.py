@@ -17,31 +17,30 @@ class KubeConfig(object):
     Main configuration class.
     """
 
-    def __init__(self, filename):
+    @classmethod
+    def from_file(cls, filename):
         """
-        Creates an instance of the KubeConfig class.
+        Creates an instance of the KubeConfig class from a kubeconfig file.
 
         :Parameters:
            - `filename`: The full path to the configuration file
         """
         if not os.path.isfile(filename):
-            raise exceptions.PyKubeError(
-                "Configuration file {} not found".format(filename))
+            raise exceptions.PyKubeError("Configuration file {} not found".format(filename))
+        with open(filename) as f:
+            doc = yaml.safe_load(f.read())
+        self = cls(doc)
         self.filename = filename
-        self.doc = None
-        self.current_context = None
+        return self
 
-    def parse(self):
+    def __init__(self, doc):
         """
-        Parses the configuration file.
+        Creates an instance of the KubeConfig class.
         """
-        if self.doc is not None:
-            # TODO: Warn if there is nothing to parse?
-            return
-        with open(self.filename) as f:
-            self.doc = yaml.safe_load(f.read())
-        if "current-context" in self.doc and self.doc["current-context"]:
-            self.set_current_context(self.doc["current-context"])
+        self.doc = doc
+        self.current_context = None
+        if "current-context" in doc and doc["current-context"]:
+            self.set_current_context(doc["current-context"])
 
     def set_current_context(self, value):
         """
@@ -58,7 +57,6 @@ class KubeConfig(object):
         Returns known clusters by exposing as a read-only property.
         """
         if not hasattr(self, "_clusters"):
-            self.parse()
             cs = {}
             for cr in self.doc["clusters"]:
                 cs[cr["name"]] = c = copy.deepcopy(cr["cluster"])
@@ -74,7 +72,6 @@ class KubeConfig(object):
         Returns known users by exposing as a read-only property.
         """
         if not hasattr(self, "_users"):
-            self.parse()
             us = {}
             for ur in self.doc["users"]:
                 us[ur["name"]] = u = copy.deepcopy(ur["user"])
@@ -89,7 +86,6 @@ class KubeConfig(object):
         Returns known contexts by exposing as a read-only property.
         """
         if not hasattr(self, "_contexts"):
-            self.parse()
             cs = {}
             for cr in self.doc["contexts"]:
                 cs[cr["name"]] = copy.deepcopy(cr["context"])
@@ -102,7 +98,6 @@ class KubeConfig(object):
         Returns the current selected cluster by exposing as a
         read-only property.
         """
-        self.parse()
         if self.current_context is None:
             raise exceptions.PyKubeError("current context not set; call set_current_context")
         return self.clusters[self.contexts[self.current_context]["cluster"]]
@@ -112,7 +107,6 @@ class KubeConfig(object):
         """
         Returns the current user by exposing as a read-only property.
         """
-        self.parse()
         if self.current_context is None:
             raise exceptions.PyKubeError("current context not set; call set_current_context")
         return self.users[self.contexts[self.current_context]["user"]]
