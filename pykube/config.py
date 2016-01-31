@@ -18,6 +18,46 @@ class KubeConfig(object):
     """
 
     @classmethod
+    def from_service_account(cls):
+        path = "/var/run/secrets/kubernetes.io/serviceaccount"
+        with open(os.path.join(path, "token")) as fp:
+            token = fp.read()
+        doc = {
+            "clusters": [
+                {
+                    "name": "self",
+                    "cluster": {
+                        "server": "https://{}:{}".format(
+                            os.environ["KUBERNETES_SERVICE_HOST"],
+                            os.environ["KUBERNETES_SERVICE_PORT"],
+                        ),
+                        "certificate-authority": os.path.join(path, "ca.crt"),
+                    },
+                },
+            ],
+            "users": [
+                {
+                    "name": "self",
+                    "user": {
+                        "token": token,
+                    },
+                },
+            ],
+            "contexts": [
+                {
+                    "name": "self",
+                    "context": {
+                        "cluster": "self",
+                        "user": "self",
+                    },
+                }
+            ],
+            "current-context": "self",
+        }
+        self = cls(doc)
+        return self
+
+    @classmethod
     def from_file(cls, filename):
         """
         Creates an instance of the KubeConfig class from a kubeconfig file.
