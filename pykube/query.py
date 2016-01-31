@@ -18,7 +18,20 @@ class Query:
     def all(self):
         return self
 
+    def get_by_name(self, name):
+        r = self.api.get(
+            url="{}/{}".format(self.endpoint, name),
+            namespace=self.namespace,
+        )
+        if not r.ok:
+            if r.status_code == 404:
+                raise ObjectDoesNotExist("{} does not exist.".format(name))
+            r.raise_for_status()
+        return self.api_obj_class(self.api, r.json())
+
     def get(self, *args, **kwargs):
+        if "name" in kwargs:
+            return self.get_by_name(kwargs["name"])
         clone = self.filter(*args, **kwargs)
         num = len(clone)
         if num == 1:
