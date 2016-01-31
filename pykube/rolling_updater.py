@@ -73,7 +73,8 @@ class RollingUpdater:
         new_rc.replicas = min(desired, new_rc.replicas + increment)
         # perform the scale up
         logger.info("scaling {} up to {}".format(new_rc.name, new_rc.replicas))
-        return self.scale_and_wait(new_rc)
+        new_rc.scale()
+        return new_rc
 
     def scale_down(self, new_rc, old_rc, desired, min_available, max_surge):
         # already scaled down; do nothing.
@@ -104,10 +105,8 @@ class RollingUpdater:
             old_rc.replicas = 0
         # perform scale down
         logger.info("scaling {} down to {}".format(old_rc.name, old_rc.replicas))
-        return self.scale_and_wait(old_rc)
-
-    def scale_and_wait(self, rc):
-        return rc.scale(self.api, rc.replicas)
+        old_rc.scale()
+        return old_rc
 
     def cleanup(self, old_rc, new_rc):
         r = self.api.delete(

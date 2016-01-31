@@ -18,10 +18,35 @@ class APIObject:
     def namespace(self):
         return self.obj["metadata"]["namespace"]
 
+    def create(self):
+        r = self.api.post(
+            url=self.endpoint,
+            namespace=self.namespace,
+            data=json.dumps(self.obj),
+        )
+        r.raise_for_status()
+        self.obj = r.json()
+
+    def reload(self):
+        r = self.api.get(
+            url="{}/{}".format(self.endpoint, self.name),
+            namespace=self.namespace,
+        )
+        r.raise_for_status()
+        self.obj = r.json()
+
+    def delete(self):
+        r = self.api.delete(
+            url="{}/{}".format(self.endpoint, self.name),
+            namespace=self.namespace,
+        )
+        r.raise_for_status()
+
 
 class ReplicationController(APIObject):
 
-    objects = ObjectManager("replicationcontrollers")
+    endpoint = "replicationcontrollers"
+    objects = ObjectManager(endpoint)
 
     @property
     def replicas(self):
@@ -31,7 +56,9 @@ class ReplicationController(APIObject):
     def replicas(self, value):
         self.obj["spec"]["replicas"] = value
 
-    def scale(self, replicas):
+    def scale(self, replicas=None):
+        if replicas is None:
+            replicas = self.replicas
         r = self.api.patch(
             url="replicationcontrollers/{}".format(self.name),
             namespace=self.namespace,
@@ -46,21 +73,16 @@ class ReplicationController(APIObject):
         )
         r.raise_for_status()
         while True:
-            r = self.api.get(
-                url="replicationcontrollers/{}".format(self.name),
-                namespace=self.namespace,
-            )
-            r.raise_for_status()
-            data = r.json()
-            if data["status"]["replicas"] == replicas:
+            self.reload()
+            if self.replicas == replicas:
                 break
             time.sleep(1)
-        return ReplicationController(data)
 
 
 class Pod(APIObject):
 
-    objects = ObjectManager("pods")
+    endpoint = "pods"
+    objects = ObjectManager(endpoint)
 
     @property
     def ready(self):
