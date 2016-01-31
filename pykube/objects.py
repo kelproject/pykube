@@ -38,12 +38,12 @@ class APIObject:
         self.obj = r.json()
 
     def reload(self):
-        r = self.api.get(**self.api_kwargs(name=self.name))
+        r = self.api.get(**self.api_kwargs())
         r.raise_for_status()
         self.obj = r.json()
 
     def delete(self):
-        r = self.api.delete(**self.api_kwargs(name=self.name))
+        r = self.api.delete(**self.api_kwargs())
         r.raise_for_status()
 
 
