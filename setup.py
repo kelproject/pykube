@@ -28,5 +28,6 @@ setup(
         "requests",
         "PyYAML",
         "six",
+        "jsonpatch",
     ],
 )

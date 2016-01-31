@@ -1,5 +1,8 @@
+import copy
 import json
 import time
+
+import jsonpatch
 
 from .exceptions import ObjectDoesNotExist
 from .query import ObjectManager
@@ -15,6 +18,7 @@ class APIObject:
 
     def __init__(self, api, obj):
         self.api = api
+        self._original_obj = copy.deepcopy(obj)
         self.obj = obj
 
     @property
@@ -27,7 +31,7 @@ class APIObject:
         if collection:
             kw["url"] = self.endpoint
         else:
-            kw["url"] = "{}/{}".format(self.endpoint, self.name)
+            kw["url"] = "{}/{}".format(self.endpoint, self._original_obj["metadata"]["name"])
         if self.namespace is not None:
             kw["namespace"] = self.namespace
         kw.update(kwargs)
@@ -53,6 +57,16 @@ class APIObject:
         r = self.api.get(**self.api_kwargs())
         r.raise_for_status()
         self.obj = r.json()
+
+    def update(self):
+        patch = jsonpatch.make_patch(self._original_obj, self.obj)
+        r = self.api.patch(**self.api_kwargs(
+            headers={"Content-Type": "application/json-patch+json"},
+            data=str(patch),
+        ))
+        r.raise_for_status()
+        self.obj = r.json()
+        self._original_obj = copy.deepcopy(self.obj)
 
     def delete(self):
         r = self.api.delete(**self.api_kwargs())
@@ -113,19 +127,8 @@ class ReplicationController(NamespacedAPIObject):
         if replicas is None:
             replicas = self.replicas
         self.exists(ensure=True)
-        r = self.api.patch(
-            url="replicationcontrollers/{}".format(self.name),
-            namespace=self.namespace,
-            headers={
-                "Content-Type": "application/strategic-merge-patch+json",
-            },
-            data=json.dumps({
-                "spec": {
-                    "replicas": replicas,
-                },
-            })
-        )
-        r.raise_for_status()
+        self.replicas = replicas
+        self.update()
         while True:
             self.reload()
             if self.replicas == replicas:
