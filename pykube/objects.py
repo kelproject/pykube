@@ -72,25 +72,21 @@ class NamespacedAPIObject(APIObject):
 class Service(NamespacedAPIObject):
 
     endpoint = "services"
-    objects = ObjectManager(endpoint)
 
 
 class Endpoint(NamespacedAPIObject):
 
     endpoint = "endpoints"
-    objects = ObjectManager(endpoint)
 
 
 class Secret(NamespacedAPIObject):
 
     endpoint = "secrets"
-    objects = ObjectManager(endpoint)
 
 
 class ReplicationController(NamespacedAPIObject):
 
     endpoint = "replicationcontrollers"
-    objects = ObjectManager(endpoint)
 
     @property
     def replicas(self):
@@ -126,7 +122,6 @@ class ReplicationController(NamespacedAPIObject):
 class Pod(NamespacedAPIObject):
 
     endpoint = "pods"
-    objects = ObjectManager(endpoint)
 
     @property
     def ready(self):
