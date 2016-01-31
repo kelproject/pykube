@@ -1,17 +1,11 @@
 import json
 import time
 
+from .exceptions import ObjectDoesNotExist
 from .query import ObjectManager
 
 
 DEFAULT_NAMESPACE = "default"
-
-
-class ObjectDoesNotExist(Exception):
-
-    def __init__(self, obj):
-        message = "{} does not exist.".format(obj.name)
-        super(ObjectDoesNotExist, self).__init__(message)
 
 
 class APIObject:
@@ -45,7 +39,7 @@ class APIObject:
             r.raise_for_status()
         if not r.ok:
             if ensure:
-                raise ObjectDoesNotExist(self)
+                raise ObjectDoesNotExist("{} does not exist.".format(self.name))
             else:
                 return False
         return True

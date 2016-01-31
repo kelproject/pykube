@@ -1,5 +1,7 @@
 from six.moves.urllib.parse import urlencode
 
+from .exceptions import ObjectDoesNotExist
+
 
 everything = object()
 
@@ -22,7 +24,7 @@ class Query:
         if num == 1:
             return clone.query_cache[0]
         if not num:
-            raise ValueError("get() returned zero objects")
+            raise ObjectDoesNotExist("get() returned zero objects")
         raise ValueError("get() more than one object; use filter")
 
     def filter(self, namespace=None, selector=None):
