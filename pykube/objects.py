@@ -1,3 +1,6 @@
+import json
+import time
+
 from .query import ObjectManager
 
 
@@ -26,6 +29,32 @@ class ReplicationController(APIObject):
     @replicas.setter
     def replicas(self, value):
         self.obj["spec"]["replicas"] = value
+
+    def scale(self, api, replicas):
+        r = api.patch(
+            url="replicationcontrollers/{}".format(self.name),
+            namespace=self.namespace,
+            headers={
+                "Content-Type": "application/strategic-merge-patch+json",
+            },
+            data=json.dumps({
+                "spec": {
+                    "replicas": replicas,
+                },
+            })
+        )
+        r.raise_for_status()
+        while True:
+            r = api.get(
+                url="replicationcontrollers/{}".format(self.name),
+                namespace=self.namespace,
+            )
+            r.raise_for_status()
+            data = r.json()
+            if data["status"]["replicas"] == replicas:
+                break
+            time.sleep(1)
+        return ReplicationController(data)
 
 
 class Pod(APIObject):
