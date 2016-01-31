@@ -36,8 +36,8 @@ class Query:
             )
             r.raise_for_status()
             cache = []
-            for item in r.json()["items"]:
-                cache.append(self.api_obj_class(item))
+            for obj in r.json()["items"]:
+                cache.append(self.api_obj_class(self.api, obj))
             self._query_cache = cache
         return self._query_cache
 

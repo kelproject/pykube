@@ -6,7 +6,8 @@ from .query import ObjectManager
 
 class APIObject:
 
-    def __init__(self, obj):
+    def __init__(self, api, obj):
+        self.api = api
         self.obj = obj
 
     @property
@@ -30,8 +31,8 @@ class ReplicationController(APIObject):
     def replicas(self, value):
         self.obj["spec"]["replicas"] = value
 
-    def scale(self, api, replicas):
-        r = api.patch(
+    def scale(self, replicas):
+        r = self.api.patch(
             url="replicationcontrollers/{}".format(self.name),
             namespace=self.namespace,
             headers={
@@ -45,7 +46,7 @@ class ReplicationController(APIObject):
         )
         r.raise_for_status()
         while True:
-            r = api.get(
+            r = self.api.get(
                 url="replicationcontrollers/{}".format(self.name),
                 namespace=self.namespace,
             )
