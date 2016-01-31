@@ -41,6 +41,9 @@ class Query:
             self._query_cache = cache
         return self._query_cache
 
+    def __len__(self):
+        return len(self.query_cache)
+
     def __iter__(self):
         return iter(self.query_cache)
 
