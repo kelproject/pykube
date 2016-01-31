@@ -1,4 +1,3 @@
-import json
 import logging
 import math
 import time
@@ -109,11 +108,7 @@ class RollingUpdater:
         return old_rc
 
     def cleanup(self, old_rc, new_rc):
-        r = self.api.delete(
-            url="replicationcontrollers/{}".format(old_rc.name),
-            namespace=old_rc.namespace,
-        )
-        r.raise_for_status()
+        old_rc.delete()
 
     def poll_for_ready_pods(self, old_rc, new_rc):
         controllers = [old_rc, new_rc]
@@ -140,26 +135,9 @@ class RollingUpdater:
 
         return old_ready, new_ready
 
-    def get_rc(self, rc):
-        r = self.api.get(
-            url="replicationcontrollers/{}".format(rc.name),
-            namespace=rc.namespace,
-        )
-        if not r.ok:
-            print(r.json())
-            r.raise_for_status()
-        return r.json()
-
     def create_rc(self, rc):
         rc.replicas = 0
-        r = self.api.post(
-            url="replicationcontrollers",
-            namespace=rc.namespace,
-            data=json.dumps(rc.obj),
-        )
-        if not r.ok:
-            print(r.json())
-            r.raise_for_status()
+        rc.create()
 
 
 def extract_max_value(field, name, value):
