@@ -6,11 +6,11 @@ everything = object()
 
 class Query:
 
-    def __init__(self, api, endpoint, api_obj_class):
+    def __init__(self, api, endpoint, api_obj_class, namespace=None):
         self.api = api
         self.endpoint = endpoint
         self.api_obj_class = api_obj_class
-        self.namespace = "default"
+        self.namespace = namespace
         self.selector = everything
 
     def all(self):
@@ -30,10 +30,12 @@ class Query:
             if self.selector is not everything:
                 params["labelSelector"] = as_selector(self.selector)
             query_string = urlencode(params)
-            r = self.api.get(
-                url="{}{}".format(self.endpoint, "?{}".format(query_string) if query_string else ""),
-                namespace=self.namespace,
-            )
+            kwargs = {
+                "url": "{}{}".format(self.endpoint, "?{}".format(query_string) if query_string else ""),
+            }
+            if self.namespace is not None:
+                kwargs["namespace"] = self.namespace
+            r = self.api.get(**kwargs)
             r.raise_for_status()
             cache = []
             for obj in r.json()["items"]:
@@ -50,15 +52,16 @@ class Query:
 
 class ObjectManager:
 
-    def __init__(self, endpoint):
-        self.endpoint = endpoint
+    def __init__(self, namespace=None):
+        self.namespace = namespace
 
     def __call__(self, api):
-        return Query(api, self.endpoint, self.api_obj_class)
+        return Query(api, self.endpoint, self.api_obj_class, namespace=self.namespace)
 
     def __get__(self, obj, api_obj_class):
         assert obj is None, "cannot invoke objects on resource object."
         self.api_obj_class = api_obj_class
+        self.endpoint = api_obj_class.endpoint
         return self
 
 

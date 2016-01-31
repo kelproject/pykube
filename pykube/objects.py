@@ -4,7 +4,13 @@ import time
 from .query import ObjectManager
 
 
+DEFAULT_NAMESPACE = "default"
+
+
 class APIObject:
+
+    objects = ObjectManager()
+    namespace = None
 
     def __init__(self, api, obj):
         self.api = api
@@ -14,36 +20,74 @@ class APIObject:
     def name(self):
         return self.obj["metadata"]["name"]
 
-    @property
-    def namespace(self):
-        return self.obj["metadata"]["namespace"]
+    def api_kwargs(self, **kwargs):
+        kw = {}
+        collection = kwargs.pop("collection", False)
+        if collection:
+            kw["url"] = self.endpoint
+        else:
+            kw["url"] = "{}/{}".format(self.endpoint, self.name)
+        if self.namespace is not None:
+            kw["namespace"] = self.namespace
+        kw.update(kwargs)
+        return kw
 
     def create(self):
-        r = self.api.post(
-            url=self.endpoint,
-            namespace=self.namespace,
-            data=json.dumps(self.obj),
-        )
+        r = self.api.post(**self.api_kwargs(data=json.dumps(self.obj), collection=True))
         r.raise_for_status()
         self.obj = r.json()
 
     def reload(self):
-        r = self.api.get(
-            url="{}/{}".format(self.endpoint, self.name),
-            namespace=self.namespace,
-        )
+        r = self.api.get(**self.api_kwargs(name=self.name))
         r.raise_for_status()
         self.obj = r.json()
 
     def delete(self):
-        r = self.api.delete(
-            url="{}/{}".format(self.endpoint, self.name),
-            namespace=self.namespace,
-        )
+        r = self.api.delete(**self.api_kwargs(name=self.name))
         r.raise_for_status()
 
 
-class ReplicationController(APIObject):
+class Namespace(APIObject):
+
+    endpoint = "namespaces"
+
+
+class Node(APIObject):
+
+    endpoint = "nodes"
+
+
+class NamespacedAPIObject(APIObject):
+
+    objects = ObjectManager(namespace=DEFAULT_NAMESPACE)
+
+    @property
+    def namespace(self):
+        if self.obj["metadata"].get("namespace"):
+            return self.obj["metadata"]["namespace"]
+        else:
+            return DEFAULT_NAMESPACE
+
+
+class Service(NamespacedAPIObject):
+
+    endpoint = "services"
+    objects = ObjectManager(endpoint)
+
+
+class Endpoint(NamespacedAPIObject):
+
+    endpoint = "endpoints"
+    objects = ObjectManager(endpoint)
+
+
+class Secret(NamespacedAPIObject):
+
+    endpoint = "secrets"
+    objects = ObjectManager(endpoint)
+
+
+class ReplicationController(NamespacedAPIObject):
 
     endpoint = "replicationcontrollers"
     objects = ObjectManager(endpoint)
@@ -79,7 +123,7 @@ class ReplicationController(APIObject):
             time.sleep(1)
 
 
-class Pod(APIObject):
+class Pod(NamespacedAPIObject):
 
     endpoint = "pods"
     objects = ObjectManager(endpoint)
