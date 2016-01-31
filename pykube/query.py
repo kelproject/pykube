@@ -16,6 +16,15 @@ class Query:
     def all(self):
         return self
 
+    def get(self, *args, **kwargs):
+        clone = self.filter(*args, **kwargs)
+        num = len(clone)
+        if num == 1:
+            return clone.query_cache[0]
+        if not num:
+            raise ValueError("get() returned zero objects")
+        raise ValueError("get() more than one object; use filter")
+
     def filter(self, namespace=None, selector=None):
         if namespace is not None:
             self.namespace = namespace
