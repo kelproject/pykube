@@ -44,7 +44,8 @@ class APIObject:
 
     def delete(self):
         r = self.api.delete(**self.api_kwargs())
-        r.raise_for_status()
+        if r.status_code != 404:
+            r.raise_for_status()
 
 
 class Namespace(APIObject):
