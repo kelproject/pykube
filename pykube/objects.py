@@ -7,6 +7,13 @@ from .query import ObjectManager
 DEFAULT_NAMESPACE = "default"
 
 
+class ObjectDoesNotExist(Exception):
+
+    def __init__(self, obj):
+        message = "{} does not exist.".format(obj.name)
+        super(ObjectDoesNotExist, self).__init__(message)
+
+
 class APIObject:
 
     objects = ObjectManager()
@@ -31,6 +38,17 @@ class APIObject:
             kw["namespace"] = self.namespace
         kw.update(kwargs)
         return kw
+
+    def exists(self, ensure=False):
+        r = self.api.get(**self.api_kwargs())
+        if r.status_code not in {200, 404}:
+            r.raise_for_status()
+        if not r.ok:
+            if ensure:
+                raise ObjectDoesNotExist(self)
+            else:
+                return False
+        return True
 
     def create(self):
         r = self.api.post(**self.api_kwargs(data=json.dumps(self.obj), collection=True))
@@ -100,6 +118,7 @@ class ReplicationController(NamespacedAPIObject):
     def scale(self, replicas=None):
         if replicas is None:
             replicas = self.replicas
+        self.exists(ensure=True)
         r = self.api.patch(
             url="replicationcontrollers/{}".format(self.name),
             namespace=self.namespace,
