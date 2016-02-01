@@ -18,8 +18,11 @@ class APIObject:
 
     def __init__(self, api, obj):
         self.api = api
-        self._original_obj = copy.deepcopy(obj)
+        self.set_obj(obj)
+
+    def set_obj(self, obj):
         self.obj = obj
+        self._original_obj = copy.deepcopy(obj)
 
     @property
     def name(self):
@@ -51,12 +54,12 @@ class APIObject:
     def create(self):
         r = self.api.post(**self.api_kwargs(data=json.dumps(self.obj), collection=True))
         r.raise_for_status()
-        self.obj = r.json()
+        self.set_obj(r.json())
 
     def reload(self):
         r = self.api.get(**self.api_kwargs())
         r.raise_for_status()
-        self.obj = r.json()
+        self.set_obj(r.json())
 
     def update(self):
         patch = jsonpatch.make_patch(self._original_obj, self.obj)
@@ -65,8 +68,7 @@ class APIObject:
             data=str(patch),
         ))
         r.raise_for_status()
-        self.obj = r.json()
-        self._original_obj = copy.deepcopy(self.obj)
+        self.set_obj(r.json())
 
     def delete(self):
         r = self.api.delete(**self.api_kwargs())
