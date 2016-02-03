@@ -6,7 +6,7 @@ from .exceptions import ObjectDoesNotExist
 everything = object()
 
 
-class Query:
+class Query(object):
 
     def __init__(self, api, endpoint, api_obj_class, namespace=None):
         self.api = api
@@ -74,7 +74,7 @@ class Query:
         return iter(self.query_cache)
 
 
-class ObjectManager:
+class ObjectManager(object):
 
     def __init__(self, namespace=None):
         self.namespace = namespace
@@ -83,6 +83,7 @@ class ObjectManager:
         return Query(api, self.endpoint, self.api_obj_class, namespace=self.namespace)
 
     def __get__(self, obj, api_obj_class):
+        print("aaa")
         assert obj is None, "cannot invoke objects on resource object."
         self.api_obj_class = api_obj_class
         self.endpoint = api_obj_class.endpoint

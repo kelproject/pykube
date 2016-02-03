@@ -8,7 +8,7 @@ from .objects import Pod
 logger = logging.getLogger(__name__)
 
 
-class RollingUpdater:
+class RollingUpdater(object):
 
     def __init__(self, api, old_rc, new_rc, **kwargs):
         self.api = api

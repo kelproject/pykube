@@ -11,7 +11,7 @@ from .query import ObjectManager
 DEFAULT_NAMESPACE = "default"
 
 
-class APIObject:
+class APIObject(object):
 
     objects = ObjectManager()
     namespace = None
