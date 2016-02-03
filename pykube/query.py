@@ -83,7 +83,6 @@ class ObjectManager(object):
         return Query(api, self.endpoint, self.api_obj_class, namespace=self.namespace)
 
     def __get__(self, obj, api_obj_class):
-        print("aaa")
         assert obj is None, "cannot invoke objects on resource object."
         self.api_obj_class = api_obj_class
         self.endpoint = api_obj_class.endpoint
