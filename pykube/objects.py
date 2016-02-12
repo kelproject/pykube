@@ -14,6 +14,8 @@ DEFAULT_NAMESPACE = "default"
 class APIObject(object):
 
     objects = ObjectManager()
+    base = ""
+    version = ""
     namespace = None
 
     def __init__(self, api, obj):
@@ -147,3 +149,10 @@ class Pod(NamespacedAPIObject):
         cs = self.obj["status"]["conditions"]
         condition = next((c for c in cs if c["type"] == "Ready"), None)
         return condition is not None and condition["status"] == "True"
+
+
+class DaemonSet(NamespacedAPIObject):
+
+    base = "/apis"
+    version = "extensions/v1beta1"
+    endpoint = "daemonsets"

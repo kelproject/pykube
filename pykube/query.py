@@ -8,9 +8,8 @@ everything = object()
 
 class Query(object):
 
-    def __init__(self, api, endpoint, api_obj_class, namespace=None):
+    def __init__(self, api, api_obj_class, namespace=None):
         self.api = api
-        self.endpoint = endpoint
         self.api_obj_class = api_obj_class
         self.namespace = namespace
         self.selector = everything
@@ -19,10 +18,15 @@ class Query(object):
         return self
 
     def get_by_name(self, name):
-        r = self.api.get(
-            url="{}/{}".format(self.endpoint, name),
-            namespace=self.namespace,
-        )
+        kwargs = {
+            "url": "{}/{}".format(self.api_obj_class.endpoint, name),
+            "namespace": self.namespace,
+        }
+        if self.api_obj_class.base:
+            kwargs["base"] = self.api_obj_class.base
+        if self.api_obj_class.version:
+            kwargs["version"] = self.api_obj_class.version
+        r = self.api.get(**kwargs)
         if not r.ok:
             if r.status_code == 404:
                 raise ObjectDoesNotExist("{} does not exist.".format(name))
@@ -55,8 +59,12 @@ class Query(object):
                 params["labelSelector"] = as_selector(self.selector)
             query_string = urlencode(params)
             kwargs = {
-                "url": "{}{}".format(self.endpoint, "?{}".format(query_string) if query_string else ""),
+                "url": "{}{}".format(self.api_obj_class.endpoint, "?{}".format(query_string) if query_string else ""),
             }
+            if self.api_obj_class.base:
+                kwargs["base"] = self.api_obj_class.base
+            if self.api_obj_class.version:
+                kwargs["version"] = self.api_obj_class.version
             if self.namespace is not None:
                 kwargs["namespace"] = self.namespace
             r = self.api.get(**kwargs)
@@ -80,12 +88,11 @@ class ObjectManager(object):
         self.namespace = namespace
 
     def __call__(self, api):
-        return Query(api, self.endpoint, self.api_obj_class, namespace=self.namespace)
+        return Query(api, self.api_obj_class, namespace=self.namespace)
 
     def __get__(self, obj, api_obj_class):
         assert obj is None, "cannot invoke objects on resource object."
         self.api_obj_class = api_obj_class
-        self.endpoint = api_obj_class.endpoint
         return self
 
 

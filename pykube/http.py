@@ -51,8 +51,8 @@ class HTTPClient(object):
            - `kwargs`: All keyword arguments to build a kubernetes API endpoint
         """
         bits = [
-            self.api_base,
-            self.version,
+            kwargs.pop("base", self.api_base),
+            kwargs.pop("version", self.version),
         ]
         if "namespace" in kwargs:
             bits.extend([
