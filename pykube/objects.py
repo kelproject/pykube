@@ -36,6 +36,9 @@ class APIObject(object):
             kw["url"] = self.endpoint
         else:
             kw["url"] = "{}/{}".format(self.endpoint, self._original_obj["metadata"]["name"])
+        if self.base:
+            kw["base"] = self.base
+        kw["version"] = self.version
         if self.namespace is not None:
             kw["namespace"] = self.namespace
         kw.update(kwargs)
