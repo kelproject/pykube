@@ -25,7 +25,7 @@ Features
 Installation
 ============
 
-To install pykube, use pip:
+To install pykube, use pip::
 
     pip install pykube
 
