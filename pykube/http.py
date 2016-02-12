@@ -12,19 +12,15 @@ class HTTPClient(object):
     Client for interfacing with the Kubernetes API.
     """
 
-    def __init__(self, config, version="v1", api_base="/api"):
+    def __init__(self, config):
         """
         Creates a new instance of the HTTPClient.
 
         :Parameters:
            - `config`: The configuration instance
-           - `version`: The version of the API to use
-           - `api_base`: The base location for API requests
         """
         self.config = config
         self.url = self.config.cluster["server"]
-        self.version = version
-        self.api_base = api_base
         self.session = self.build_session()
 
     def build_session(self):
@@ -50,10 +46,16 @@ class HTTPClient(object):
         :Parametes:
            - `kwargs`: All keyword arguments to build a kubernetes API endpoint
         """
-        bits = [
-            kwargs.pop("base", self.api_base),
-            kwargs.pop("version", self.version),
-        ]
+        version = kwargs.pop("version", "v1")
+        if version == "v1":
+            base = kwargs.pop("base", "/api")
+        elif version.startswith("extensions/"):
+            base = kwargs.pop("base", "/apis")
+        else:
+            if "base" not in kwargs:
+                raise TypeError("unknown API version; base kwarg must be specified.")
+            base = kwargs.pop("base")
+        bits = [base, version]
         if "namespace" in kwargs:
             bits.extend([
                 "namespaces",

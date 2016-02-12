@@ -14,8 +14,7 @@ DEFAULT_NAMESPACE = "default"
 class APIObject(object):
 
     objects = ObjectManager()
-    base = ""
-    version = ""
+    base = None
     namespace = None
 
     def __init__(self, api, obj):
@@ -80,11 +79,13 @@ class APIObject(object):
 
 class Namespace(APIObject):
 
+    version = "v1"
     endpoint = "namespaces"
 
 
 class Node(APIObject):
 
+    version = "v1"
     endpoint = "nodes"
 
 
@@ -102,21 +103,25 @@ class NamespacedAPIObject(APIObject):
 
 class Service(NamespacedAPIObject):
 
+    version = "v1"
     endpoint = "services"
 
 
 class Endpoint(NamespacedAPIObject):
 
+    version = "v1"
     endpoint = "endpoints"
 
 
 class Secret(NamespacedAPIObject):
 
+    version = "v1"
     endpoint = "secrets"
 
 
 class ReplicationController(NamespacedAPIObject):
 
+    version = "v1"
     endpoint = "replicationcontrollers"
 
     @property
@@ -142,6 +147,7 @@ class ReplicationController(NamespacedAPIObject):
 
 class Pod(NamespacedAPIObject):
 
+    version = "v1"
     endpoint = "pods"
 
     @property
@@ -153,6 +159,5 @@ class Pod(NamespacedAPIObject):
 
 class DaemonSet(NamespacedAPIObject):
 
-    base = "/apis"
     version = "extensions/v1beta1"
     endpoint = "daemonsets"
