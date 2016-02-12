@@ -22,6 +22,13 @@ Features
 * HTTP interface using requests using kubeconfig for authentication
 * Python native querying of Kubernetes API objects
 
+Installation
+============
+
+To install pykube, use pip:
+
+    pip install pykube
+
 Usage
 =====
 
