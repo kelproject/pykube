@@ -7,7 +7,7 @@ with open("README.rst") as fp:
 
 setup(
     name="pykube",
-    version="0.7.1",
+    version="0.7.2",
     description="Python client library for Kubernetes",
     long_description=long_description,
     author="Eldarion, Inc.",
