@@ -19,15 +19,14 @@ class RollingUpdater(object):
         self.max_surge = kwargs.get("max_surge", 1)
 
     def update(self):
-        if self.new_rc.exists():
-            return
-        self.create_rc(self.new_rc)
-
         desired = self.new_rc.replicas
         original = self.old_rc.replicas
         max_unavailable = extract_max_value(self.max_unavailable, "max_unavailable", desired)
         max_surge = extract_max_value(self.max_surge, "max_surge", desired)
         min_available = original - max_unavailable
+        if self.new_rc.exists():
+            return
+        self.create_rc(self.new_rc)
         new_rc, old_rc = self.new_rc, self.old_rc
 
         logger.info(
