@@ -29,6 +29,10 @@ class APIObject(object):
     def name(self):
         return self.obj["metadata"]["name"]
 
+    @property
+    def annotations(self):
+        return self.obj["metadata"].get("annotations", {})
+
     def api_kwargs(self, **kwargs):
         kw = {}
         collection = kwargs.pop("collection", False)
