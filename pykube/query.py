@@ -112,8 +112,8 @@ class Query(BaseQuery):
 
 class WatchQuery(BaseQuery):
 
-    def __init__(self, *args, resource_version=None, **kwargs):
-        self.resource_version = resource_version
+    def __init__(self, *args, **kwargs):
+        self.resource_version = kwargs.pop("resource_version", None)
         super(WatchQuery, self).__init__(*args, **kwargs)
 
     def object_stream(self):
