@@ -14,3 +14,4 @@ from .objects import (  # noqa
     ReplicationController,
     Pod,
 )
+from .query import now, all_ as all, everything  # noqa
