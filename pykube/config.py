@@ -22,15 +22,18 @@ class KubeConfig(object):
         path = "/var/run/secrets/kubernetes.io/serviceaccount"
         with open(os.path.join(path, "token")) as fp:
             token = fp.read()
+        host = os.environ.get("PYKUBE_KUBERNETES_SERVICE_HOST")
+        if host is None:
+            host = os.environ["KUBERNETES_SERVICE_HOST"]
+        port = os.environ.get("PYKUBE_KUBERNETES_SERVICE_PORT")
+        if port is None:
+            port = os.environ["KUBERNETES_SERVICE_PORT"]
         doc = {
             "clusters": [
                 {
                     "name": "self",
                     "cluster": {
-                        "server": "https://{}:{}".format(
-                            os.environ["KUBERNETES_SERVICE_HOST"],
-                            os.environ["KUBERNETES_SERVICE_PORT"],
-                        ),
+                        "server": "https://{}:{}".format(host, port),
                         "certificate-authority": os.path.join(path, "ca.crt"),
                     },
                 },
