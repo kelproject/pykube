@@ -163,6 +163,15 @@ class Pod(NamespacedAPIObject):
         condition = next((c for c in cs if c["type"] == "Ready"), None)
         return condition is not None and condition["status"] == "True"
 
+class PersistentVolume(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "persistentvolumes"
+
+class PersistentVolumeClaim(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "persistentvolumeclaims"
 
 class DaemonSet(NamespacedAPIObject):
 
