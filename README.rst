@@ -2,7 +2,7 @@
 pykube
 ======
 
-*Python client for Kubernetes*
+*Python client library for Kubernetes*
 
 .. image:: https://img.shields.io/pypi/dm/pykube.svg
     :target:  https://pypi.python.org/pypi/pykube/
@@ -12,9 +12,6 @@ pykube
 
 .. image:: https://img.shields.io/badge/license-apache-blue.svg
     :target:  https://pypi.python.org/pypi/pykube/
-
-
-Client library written in Python to interface to Kubernetes.
 
 Features
 ========
