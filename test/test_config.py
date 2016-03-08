@@ -15,7 +15,7 @@ GOOD_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config.yaml"])
 class TestConfig(TestCase):
 
     def setUp(self):
-        self.cfg = config.KubeConfig(GOOD_CONFIG_FILE_PATH)
+        self.cfg = config.KubeConfig.from_file(GOOD_CONFIG_FILE_PATH)
 
     def tearDown(self):
         self.cfg = None
@@ -32,7 +32,7 @@ class TestConfig(TestCase):
         # Ensure that if a file does not exist the creation fails
         self.assertRaises(
             exceptions.PyKubeError,
-            config.KubeConfig,
+            config.KubeConfig.from_file,
             "doesnotexist")
 
     def test_set_current_context(self):
