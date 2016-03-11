@@ -170,7 +170,7 @@ class DaemonSet(NamespacedAPIObject):
     endpoint = "daemonsets"
 
 
-class Deployments(NamespacedAPIObject):
+class Deployment(NamespacedAPIObject):
 
     version = "extensions/v1beta1"
     endpoint = "deployments"
