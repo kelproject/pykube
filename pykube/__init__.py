@@ -13,5 +13,7 @@ from .objects import (  # noqa
     Secret,
     ReplicationController,
     Pod,
+    DaemonSet,
+    Deployment,
 )
 from .query import now, all_ as all, everything  # noqa

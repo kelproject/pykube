@@ -168,3 +168,9 @@ class DaemonSet(NamespacedAPIObject):
 
     version = "extensions/v1beta1"
     endpoint = "daemonsets"
+
+
+class Deployment(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "deployments"
