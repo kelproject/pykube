@@ -126,10 +126,7 @@ class Secret(NamespacedAPIObject):
     endpoint = "secrets"
 
 
-class ReplicationController(NamespacedAPIObject):
-
-    version = "v1"
-    endpoint = "replicationcontrollers"
+class ReplicatedAPIObject(object):
 
     @property
     def replicas(self):
@@ -138,6 +135,12 @@ class ReplicationController(NamespacedAPIObject):
     @replicas.setter
     def replicas(self, value):
         self.obj["spec"]["replicas"] = value
+
+
+class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
+
+    version = "v1"
+    endpoint = "replicationcontrollers"
 
     def scale(self, replicas=None):
         if replicas is None:
@@ -170,7 +173,7 @@ class DaemonSet(NamespacedAPIObject):
     endpoint = "daemonsets"
 
 
-class Deployment(NamespacedAPIObject):
+class Deployment(NamespacedAPIObject, ReplicatedAPIObject):
 
     version = "extensions/v1beta1"
     endpoint = "deployments"
