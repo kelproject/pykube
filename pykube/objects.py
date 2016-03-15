@@ -166,6 +166,11 @@ class Pod(NamespacedAPIObject):
         condition = next((c for c in cs if c["type"] == "Ready"), None)
         return condition is not None and condition["status"] == "True"
 
+class Job(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "jobs"
+
 
 class DaemonSet(NamespacedAPIObject):
 

@@ -13,6 +13,7 @@ from .objects import (  # noqa
     Secret,
     ReplicationController,
     Pod,
+    Job,
     DaemonSet,
     Deployment,
 )
