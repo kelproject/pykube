@@ -51,7 +51,7 @@ class APIObject(object):
     def exists(self, ensure=False):
         r = self.api.get(**self.api_kwargs())
         if r.status_code not in {200, 404}:
-            r.raise_for_status()
+            self.api.raise_for_status(r)
         if not r.ok:
             if ensure:
                 raise ObjectDoesNotExist("{} does not exist.".format(self.name))
@@ -61,12 +61,12 @@ class APIObject(object):
 
     def create(self):
         r = self.api.post(**self.api_kwargs(data=json.dumps(self.obj), collection=True))
-        r.raise_for_status()
+        self.api.raise_for_status(r)
         self.set_obj(r.json())
 
     def reload(self):
         r = self.api.get(**self.api_kwargs())
-        r.raise_for_status()
+        self.api.raise_for_status(r)
         self.set_obj(r.json())
 
     def update(self):
@@ -75,13 +75,13 @@ class APIObject(object):
             headers={"Content-Type": "application/json-patch+json"},
             data=str(patch),
         ))
-        r.raise_for_status()
+        self.api.raise_for_status(r)
         self.set_obj(r.json())
 
     def delete(self):
         r = self.api.delete(**self.api_kwargs())
         if r.status_code != 404:
-            r.raise_for_status()
+            self.api.raise_for_status(r)
 
 
 class Namespace(APIObject):
