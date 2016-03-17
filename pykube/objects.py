@@ -167,6 +167,12 @@ class Pod(NamespacedAPIObject):
         return condition is not None and condition["status"] == "True"
 
 
+class Job(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "jobs"
+
+
 class DaemonSet(NamespacedAPIObject):
 
     version = "extensions/v1beta1"
