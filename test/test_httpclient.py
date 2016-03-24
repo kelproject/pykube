@@ -12,7 +12,7 @@ class TestHTTPClient(TestCase):
 
     def test_no_auth(self):
         """
-        Ensure headers are set for certificate based auth
+        Cluster does not require any authentication--so no credentials are provided in the user info
         """
         client = http.HTTPClient(config.KubeConfig(doc=self.sampleNoAuthConfig))
 
