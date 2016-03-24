@@ -195,3 +195,9 @@ class Deployment(NamespacedAPIObject, ReplicatedAPIObject):
 
     version = "extensions/v1beta1"
     endpoint = "deployments"
+
+
+class Ingress(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "ingresses"
