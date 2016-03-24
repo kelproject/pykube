@@ -115,7 +115,10 @@ class KubeConfig(object):
         Returns known users by exposing as a read-only property.
         """
         if not hasattr(self, "_users"):
-            us = { "default": {} }
+            us = {
+                "default": {}
+            }
+
             if "users" in self.doc:
                 for ur in self.doc["users"]:
                     us[ur["name"]] = u = copy.deepcopy(ur["user"])
