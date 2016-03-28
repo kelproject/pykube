@@ -68,6 +68,7 @@ class KubeConfig(object):
         :Parameters:
            - `filename`: The full path to the configuration file
         """
+        filename = os.path.expanduser(filename)
         if not os.path.isfile(filename):
             raise exceptions.PyKubeError("Configuration file {} not found".format(filename))
         with open(filename) as f:
