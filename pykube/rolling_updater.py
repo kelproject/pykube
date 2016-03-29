@@ -3,8 +3,10 @@ import math
 import time
 
 from .objects import Pod
+from .exceptions import KubernetesError
 
 
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -25,8 +27,26 @@ class RollingUpdater(object):
         max_surge = extract_max_value(self.max_surge, "max_surge", desired)
         min_available = original - max_unavailable
         if self.new_rc.exists():
-            return
+            logger.info("ReplicationController {} already exists.".format(self.new_rc.name))
+            return False
+        new_selector = self.new_rc.obj["spec"]["selector"]
+        old_selector = self.old_rc.obj["spec"]["selector"]
+        if new_selector == old_selector:
+            raise KubernetesError(
+                "error: {} must specify a matching key with non-equal value in Selector for {}".format(
+                    self.new_rc.name,
+                    self.old_rc.name
+                ))
+        new_labels = self.new_rc.obj["spec"]["template"]["metadata"]["labels"]
+        if new_selector != new_labels:
+            raise KubernetesError(
+                "The ReplicationController {} is invalid. spec.template.metadata.labels: Invalid value: {}: `selector` does not match template `labels` {}".format(
+                    self.new_rc.name,
+                    new_selector,
+                    new_labels))
+
         self.create_rc(self.new_rc)
+        logger.info("Created {}".format(self.new_rc.name))
         new_rc, old_rc = self.new_rc, self.old_rc
 
         logger.info(
@@ -56,6 +76,7 @@ class RollingUpdater(object):
             )
             old_rc = scaled_rc
 
+        logger.info("Update succeeded. Deleting {}".format(old_rc.name))
         self.cleanup(old_rc, new_rc)
 
     def scale_up(self, new_rc, old_rc, original, desired, max_surge, max_unavailable):
