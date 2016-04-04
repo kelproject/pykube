@@ -6,7 +6,6 @@ from .objects import Pod
 from .exceptions import KubernetesError
 
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
