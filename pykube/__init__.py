@@ -16,5 +16,6 @@ from .objects import (  # noqa
     Job,
     DaemonSet,
     Deployment,
+    Ingress,
 )
 from .query import now, all_ as all, everything  # noqa
