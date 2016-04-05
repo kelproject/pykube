@@ -84,18 +84,6 @@ class APIObject(object):
             self.api.raise_for_status(r)
 
 
-class Namespace(APIObject):
-
-    version = "v1"
-    endpoint = "namespaces"
-
-
-class Node(APIObject):
-
-    version = "v1"
-    endpoint = "nodes"
-
-
 class NamespacedAPIObject(APIObject):
 
     objects = ObjectManager(namespace=DEFAULT_NAMESPACE)
@@ -108,24 +96,6 @@ class NamespacedAPIObject(APIObject):
             return DEFAULT_NAMESPACE
 
 
-class Service(NamespacedAPIObject):
-
-    version = "v1"
-    endpoint = "services"
-
-
-class Endpoint(NamespacedAPIObject):
-
-    version = "v1"
-    endpoint = "endpoints"
-
-
-class Secret(NamespacedAPIObject):
-
-    version = "v1"
-    endpoint = "secrets"
-
-
 class ReplicatedAPIObject(object):
 
     @property
@@ -135,6 +105,66 @@ class ReplicatedAPIObject(object):
     @replicas.setter
     def replicas(self, value):
         self.obj["spec"]["replicas"] = value
+
+
+class ConfigMap(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "configmaps"
+
+
+class DaemonSet(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "daemonsets"
+
+
+class Deployment(NamespacedAPIObject, ReplicatedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "deployments"
+
+
+class Endpoint(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "endpoints"
+
+
+class Ingress(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "ingresses"
+
+
+class Job(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "jobs"
+
+
+class Namespace(APIObject):
+
+    version = "v1"
+    endpoint = "namespaces"
+
+
+class Node(APIObject):
+
+    version = "v1"
+    endpoint = "nodes"
+
+
+class Pod(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "pods"
+
+    @property
+    def ready(self):
+        cs = self.obj["status"]["conditions"]
+        condition = next((c for c in cs if c["type"] == "Ready"), None)
+        return condition is not None and condition["status"] == "True"
 
 
 class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
@@ -155,16 +185,16 @@ class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
             time.sleep(1)
 
 
-class Pod(NamespacedAPIObject):
+class Secret(NamespacedAPIObject):
 
     version = "v1"
-    endpoint = "pods"
+    endpoint = "secrets"
 
-    @property
-    def ready(self):
-        cs = self.obj["status"]["conditions"]
-        condition = next((c for c in cs if c["type"] == "Ready"), None)
-        return condition is not None and condition["status"] == "True"
+
+class Service(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "services"
 
 
 class PersistentVolume(APIObject):
@@ -177,33 +207,3 @@ class PersistentVolumeClaim(NamespacedAPIObject):
 
     version = "v1"
     endpoint = "persistentvolumeclaims"
-
-
-class Job(NamespacedAPIObject):
-
-    version = "extensions/v1beta1"
-    endpoint = "jobs"
-
-
-class DaemonSet(NamespacedAPIObject):
-
-    version = "extensions/v1beta1"
-    endpoint = "daemonsets"
-
-
-class Deployment(NamespacedAPIObject, ReplicatedAPIObject):
-
-    version = "extensions/v1beta1"
-    endpoint = "deployments"
-
-
-class Ingress(NamespacedAPIObject):
-
-    version = "extensions/v1beta1"
-    endpoint = "ingresses"
-
-
-class ConfigMap(NamespacedAPIObject):
-
-    version = "v1"
-    endpoint = "configmaps"
