@@ -111,54 +111,63 @@ class ConfigMap(NamespacedAPIObject):
 
     version = "v1"
     endpoint = "configmaps"
+    kind = "ConfigMap"
 
 
 class DaemonSet(NamespacedAPIObject):
 
     version = "extensions/v1beta1"
     endpoint = "daemonsets"
+    kind = "DaemonSet"
 
 
 class Deployment(NamespacedAPIObject, ReplicatedAPIObject):
 
     version = "extensions/v1beta1"
     endpoint = "deployments"
+    kind = "Deployment"
 
 
 class Endpoint(NamespacedAPIObject):
 
     version = "v1"
     endpoint = "endpoints"
+    kind = "Endpoint"
 
 
 class Ingress(NamespacedAPIObject):
 
     version = "extensions/v1beta1"
     endpoint = "ingresses"
+    kind = "Ingress"
 
 
 class Job(NamespacedAPIObject):
 
     version = "extensions/v1beta1"
     endpoint = "jobs"
+    kind = "Job"
 
 
 class Namespace(APIObject):
 
     version = "v1"
     endpoint = "namespaces"
+    kind = "Namespace"
 
 
 class Node(APIObject):
 
     version = "v1"
     endpoint = "nodes"
+    kind = "Node"
 
 
 class Pod(NamespacedAPIObject):
 
     version = "v1"
     endpoint = "pods"
+    kind = "Pod"
 
     @property
     def ready(self):
@@ -171,6 +180,7 @@ class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
 
     version = "v1"
     endpoint = "replicationcontrollers"
+    kind = "ReplicationController"
 
     def scale(self, replicas=None):
         if replicas is None:
@@ -189,21 +199,25 @@ class Secret(NamespacedAPIObject):
 
     version = "v1"
     endpoint = "secrets"
+    kind = "Secret"
 
 
 class Service(NamespacedAPIObject):
 
     version = "v1"
     endpoint = "services"
+    kind = "Secret"
 
 
 class PersistentVolume(APIObject):
 
     version = "v1"
     endpoint = "persistentvolumes"
+    kind = "PersistentVolume"
 
 
 class PersistentVolumeClaim(NamespacedAPIObject):
 
     version = "v1"
     endpoint = "persistentvolumeclaims"
+    kind = "PersistentVolumeClaim"
