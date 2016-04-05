@@ -201,3 +201,9 @@ class Ingress(NamespacedAPIObject):
 
     version = "extensions/v1beta1"
     endpoint = "ingresses"
+
+
+class ConfigMap(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "configmaps"
