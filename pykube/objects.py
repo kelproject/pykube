@@ -206,7 +206,7 @@ class Service(NamespacedAPIObject):
 
     version = "v1"
     endpoint = "services"
-    kind = "Secret"
+    kind = "Service"
 
 
 class PersistentVolume(APIObject):
