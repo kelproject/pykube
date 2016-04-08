@@ -29,7 +29,9 @@ To install pykube, use pip::
 Usage
 =====
 
-A simple query for all ready pods in a custom namespace::
+A simple query for all ready pods in a custom namespace:
+
+.. code:: python
 
     import operator
 
@@ -42,7 +44,9 @@ A simple query for all ready pods in a custom namespace::
     pods = Pod.objects(api).filter(namespace="gondor-system")
     ready_pods = filter(operator.attrgetter("ready"), pods)
 
-Selector query::
+Selector query:
+
+.. code:: python
 
     pods = Pod.objects(api).filter(
         namespace="gondor-system",
