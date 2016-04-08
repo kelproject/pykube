@@ -56,6 +56,6 @@ Selector query:
 Requirements
 ============
 
-* Python 2.7 or 3.4+
+* Python 2.7 or 3.3+
 * requests (included in ``install_requires``)
 * PyYAML (included in ``install_requires``)
