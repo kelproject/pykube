@@ -29,29 +29,75 @@ To install pykube, use pip::
 Usage
 =====
 
-A simple query for all ready pods in a custom namespace:
+Query for all ready pods in a custom namespace:
 
 .. code:: python
 
     import operator
+    import pykube
 
-    from pykube.config import KubeConfig
-    from pykube.http import HTTPClient
-    from pykube.objects import Pod
-
-
-    api = HTTPClient(KubeConfig.from_file("/Users/<username>/.kube/config"))
-    pods = Pod.objects(api).filter(namespace="gondor-system")
+    api = pykube.HTTPClient(pykube.KubeConfig.from_file("/Users/<username>/.kube/config"))
+    pods = pykube.Pod.objects(api).filter(namespace="gondor-system")
     ready_pods = filter(operator.attrgetter("ready"), pods)
 
 Selector query:
 
 .. code:: python
 
-    pods = Pod.objects(api).filter(
+    pods = pykube.Pod.objects(api).filter(
         namespace="gondor-system",
         selector={"gondor.io/name__in": {"api-web", "api-worker"}},
     )
+
+Create a ReplicationController:
+
+.. code:: python
+
+    obj = {
+        "apiVersion": "v1",
+        "kind": "ReplicationController",
+        "metadata": {
+            "name": "my-rc",
+            "namespace": "gondor-system"
+        },
+        "spec": {
+            "replicas": 3,
+            "selector": {
+                "app": "nginx"
+            },
+            "template": {
+                "metadata": {
+                    "labels": {
+                        "app": "nginx"
+                    }
+                },
+                "spec": {
+                    "containers": [
+                        {
+                            "name": "nginx",
+                            "image": "nginx",
+                            "ports": [
+                                {"containerPort": 80}
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+    pykube.ReplicationController(obj).create()
+
+Delete a ReplicationController:
+
+    obj = {
+        "apiVersion": "v1",
+        "kind": "ReplicationController",
+        "metadata": {
+            "name": "my-rc",
+            "namespace": "gondor-system"
+        }
+    }
+    pykube.ReplicationController(obj).delete()
 
 Requirements
 ============
