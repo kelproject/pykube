@@ -17,5 +17,9 @@ class PyKubeError(KubernetesError):
     pass
 
 
+class HTTPError(PyKubeError):
+    pass
+
+
 class ObjectDoesNotExist(PyKubeError):
     pass

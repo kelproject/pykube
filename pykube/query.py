@@ -58,7 +58,7 @@ class Query(BaseQuery):
         if not r.ok:
             if r.status_code == 404:
                 raise ObjectDoesNotExist("{} does not exist.".format(name))
-            r.raise_for_status()
+            self.api.raise_for_status(r)
         return self.api_obj_class(self.api, r.json())
 
     def get(self, *args, **kwargs):
@@ -128,7 +128,7 @@ class WatchQuery(BaseQuery):
             "stream": True,
         }
         r = self.api.get(**kwargs)
-        r.raise_for_status()
+        self.api.raise_for_status(r)
         WatchEvent = namedtuple("WatchEvent", "type object")
         for line in r.iter_lines():
             we = json.loads(line.decode("utf-8"))

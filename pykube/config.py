@@ -18,8 +18,7 @@ class KubeConfig(object):
     """
 
     @classmethod
-    def from_service_account(cls):
-        path = "/var/run/secrets/kubernetes.io/serviceaccount"
+    def from_service_account(cls, path="/var/run/secrets/kubernetes.io/serviceaccount"):
         with open(os.path.join(path, "token")) as fp:
             token = fp.read()
         host = os.environ.get("PYKUBE_KUBERNETES_SERVICE_HOST")
@@ -68,6 +67,7 @@ class KubeConfig(object):
         :Parameters:
            - `filename`: The full path to the configuration file
         """
+        filename = os.path.expanduser(filename)
         if not os.path.isfile(filename):
             raise exceptions.PyKubeError("Configuration file {} not found".format(filename))
         with open(filename) as f:

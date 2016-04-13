@@ -6,6 +6,8 @@ import posixpath
 
 import requests
 
+from .exceptions import HTTPError
+
 
 class HTTPClient(object):
     """
@@ -67,6 +69,18 @@ class HTTPClient(object):
         bits.append(url)
         kwargs["url"] = self.url + posixpath.join(*bits)
         return kwargs
+
+    def raise_for_status(self, resp):
+        try:
+            resp.raise_for_status()
+        except Exception:
+            # attempt to provide a more specific exception based around what
+            # Kubernetes returned as the error.
+            if resp.headers["content-type"] == "application/json":
+                payload = resp.json()
+                if payload["kind"] == "Status":
+                    raise HTTPError(payload["message"])
+            raise
 
     def request(self, *args, **kwargs):
         """

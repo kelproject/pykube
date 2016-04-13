@@ -51,7 +51,7 @@ class APIObject(object):
     def exists(self, ensure=False):
         r = self.api.get(**self.api_kwargs())
         if r.status_code not in {200, 404}:
-            r.raise_for_status()
+            self.api.raise_for_status(r)
         if not r.ok:
             if ensure:
                 raise ObjectDoesNotExist("{} does not exist.".format(self.name))
@@ -61,12 +61,12 @@ class APIObject(object):
 
     def create(self):
         r = self.api.post(**self.api_kwargs(data=json.dumps(self.obj), collection=True))
-        r.raise_for_status()
+        self.api.raise_for_status(r)
         self.set_obj(r.json())
 
     def reload(self):
         r = self.api.get(**self.api_kwargs())
-        r.raise_for_status()
+        self.api.raise_for_status(r)
         self.set_obj(r.json())
 
     def update(self):
@@ -75,25 +75,13 @@ class APIObject(object):
             headers={"Content-Type": "application/json-patch+json"},
             data=str(patch),
         ))
-        r.raise_for_status()
+        self.api.raise_for_status(r)
         self.set_obj(r.json())
 
     def delete(self):
         r = self.api.delete(**self.api_kwargs())
         if r.status_code != 404:
-            r.raise_for_status()
-
-
-class Namespace(APIObject):
-
-    version = "v1"
-    endpoint = "namespaces"
-
-
-class Node(APIObject):
-
-    version = "v1"
-    endpoint = "nodes"
+            self.api.raise_for_status(r)
 
 
 class NamespacedAPIObject(APIObject):
@@ -108,24 +96,6 @@ class NamespacedAPIObject(APIObject):
             return DEFAULT_NAMESPACE
 
 
-class Service(NamespacedAPIObject):
-
-    version = "v1"
-    endpoint = "services"
-
-
-class Endpoint(NamespacedAPIObject):
-
-    version = "v1"
-    endpoint = "endpoints"
-
-
-class Secret(NamespacedAPIObject):
-
-    version = "v1"
-    endpoint = "secrets"
-
-
 class ReplicatedAPIObject(object):
 
     @property
@@ -137,10 +107,80 @@ class ReplicatedAPIObject(object):
         self.obj["spec"]["replicas"] = value
 
 
+class ConfigMap(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "configmaps"
+    kind = "ConfigMap"
+
+
+class DaemonSet(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "daemonsets"
+    kind = "DaemonSet"
+
+
+class Deployment(NamespacedAPIObject, ReplicatedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "deployments"
+    kind = "Deployment"
+
+
+class Endpoint(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "endpoints"
+    kind = "Endpoint"
+
+
+class Ingress(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "ingresses"
+    kind = "Ingress"
+
+
+class Job(NamespacedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "jobs"
+    kind = "Job"
+
+
+class Namespace(APIObject):
+
+    version = "v1"
+    endpoint = "namespaces"
+    kind = "Namespace"
+
+
+class Node(APIObject):
+
+    version = "v1"
+    endpoint = "nodes"
+    kind = "Node"
+
+
+class Pod(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "pods"
+    kind = "Pod"
+
+    @property
+    def ready(self):
+        cs = self.obj["status"]["conditions"]
+        condition = next((c for c in cs if c["type"] == "Ready"), None)
+        return condition is not None and condition["status"] == "True"
+
+
 class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
 
     version = "v1"
     endpoint = "replicationcontrollers"
+    kind = "ReplicationController"
 
     def scale(self, replicas=None):
         if replicas is None:
@@ -155,31 +195,29 @@ class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
             time.sleep(1)
 
 
-class Pod(NamespacedAPIObject):
+class Secret(NamespacedAPIObject):
 
     version = "v1"
-    endpoint = "pods"
-
-    @property
-    def ready(self):
-        cs = self.obj["status"]["conditions"]
-        condition = next((c for c in cs if c["type"] == "Ready"), None)
-        return condition is not None and condition["status"] == "True"
+    endpoint = "secrets"
+    kind = "Secret"
 
 
-class Job(NamespacedAPIObject):
+class Service(NamespacedAPIObject):
 
-    version = "extensions/v1beta1"
-    endpoint = "jobs"
-
-
-class DaemonSet(NamespacedAPIObject):
-
-    version = "extensions/v1beta1"
-    endpoint = "daemonsets"
+    version = "v1"
+    endpoint = "services"
+    kind = "Service"
 
 
-class Deployment(NamespacedAPIObject, ReplicatedAPIObject):
+class PersistentVolume(APIObject):
 
-    version = "extensions/v1beta1"
-    endpoint = "deployments"
+    version = "v1"
+    endpoint = "persistentvolumes"
+    kind = "PersistentVolume"
+
+
+class PersistentVolumeClaim(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "persistentvolumeclaims"
+    kind = "PersistentVolumeClaim"
