@@ -89,6 +89,8 @@ Create a ReplicationController:
 
 Delete a ReplicationController:
 
+.. code:: python
+
     obj = {
         "apiVersion": "v1",
         "kind": "ReplicationController",
