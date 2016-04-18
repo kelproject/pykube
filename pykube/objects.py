@@ -4,6 +4,7 @@ import time
 
 import jsonpatch
 
+from urllib import urlencode
 from .exceptions import ObjectDoesNotExist
 from .query import ObjectManager
 
@@ -174,6 +175,21 @@ class Pod(NamespacedAPIObject):
         cs = self.obj["status"]["conditions"]
         condition = next((c for c in cs if c["type"] == "Ready"), None)
         return condition is not None and condition["status"] == "True"
+
+    def get_logs(self, container=None):
+        url = "logs"
+        params = {}
+        if container is not None:
+            params["container"] = container
+        query_string = urlencode(params)
+        url += "?{}".format(query_string) if query_string else ""
+        kwargs = {'url': url,
+                  'pods': self.name,
+                  'namespace': self.namespace,
+                  'version': self.version}
+        r = self.api.get(**kwargs)
+        r.raise_for_status()
+        return r.json()
 
 
 class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
