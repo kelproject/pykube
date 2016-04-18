@@ -4,7 +4,7 @@ import time
 
 import jsonpatch
 
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 from .exceptions import ObjectDoesNotExist
 from .query import ObjectManager
 
