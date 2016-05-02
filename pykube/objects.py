@@ -195,6 +195,13 @@ class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
             time.sleep(1)
 
 
+class ReplicaSet(NamespacedAPIObject, ReplicatedAPIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "replicasets"
+    kind = "ReplicaSet"
+
+
 class Secret(NamespacedAPIObject):
 
     version = "v1"
