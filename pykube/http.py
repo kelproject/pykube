@@ -3,10 +3,17 @@ HTTP request related code.
 """
 
 import posixpath
+import re
+import sys
 
 import requests
 
-from .exceptions import HTTPError
+from six.moves.urllib.parse import urlparse
+
+from .exceptions import PyKubeError, HTTPError
+
+
+_ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 
 
 class HTTPClient(object):
@@ -24,6 +31,17 @@ class HTTPClient(object):
         self.config = config
         self.url = self.config.cluster["server"]
         self.session = self.build_session()
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, value):
+        pr = urlparse(value)
+        if sys.version_info < (3, 5) and ("::" in pr.hostname or _ipv4_re.match(pr.hostname)):
+            raise PyKubeError("IP address hostnames are not supported with Python < 3.5. Please see https://github.com/kelproject/pykube/issues/29 for more info.")
+        self._url = pr.geturl()
 
     def build_session(self):
         """
