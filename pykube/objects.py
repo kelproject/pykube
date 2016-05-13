@@ -176,7 +176,7 @@ class Pod(NamespacedAPIObject):
         condition = next((c for c in cs if c["type"] == "Ready"), None)
         return condition is not None and condition["status"] == "True"
 
-    def get_logs(self, container=None, pretty=None, previous=False,
+    def logs(self, container=None, pretty=None, previous=False,
                  since_seconds=None, since_time=None, timestamps=False,
                  tail_lines=None, limit_bytes=None):
         """
