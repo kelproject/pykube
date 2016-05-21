@@ -69,7 +69,7 @@ class HTTPClient(object):
         version = kwargs.pop("version", "v1")
         if version == "v1":
             base = kwargs.pop("base", "/api")
-        elif version.startswith("extensions/"):
+        elif any(map(version.startswith, ["extensions/", "batch/"])):
             base = kwargs.pop("base", "/apis")
         else:
             if "base" not in kwargs:
