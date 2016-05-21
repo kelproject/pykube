@@ -1,5 +1,11 @@
 # ChangeLog
 
+## 0.11.0
+
+### Features
+
+* `Job` object uses `batch/v1` kind
+
 ## 0.10.0
 
 ### Features
