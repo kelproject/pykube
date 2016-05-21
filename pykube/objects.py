@@ -144,7 +144,7 @@ class Ingress(NamespacedAPIObject):
 
 class Job(NamespacedAPIObject):
 
-    version = "extensions/v1beta1"
+    version = "batch/v1"
     endpoint = "jobs"
     kind = "Job"
 
