@@ -149,9 +149,13 @@ class Job(NamespacedAPIObject):
     kind = "Job"
 
     def scale(self, replicas=None):
-        """Scales a job as it would be done by kubectl scale --replicas=num Jobs/myjob. Replicas can start from zero."""
+        """
+        Scales a job as it would be done by kubectl scale --replicas=num Jobs/myjob.
+        Replicas can start from zero.
+        """
         parallelism = replicas
-        # we use parallelism from now on because this is what it is altered at the API level by the kubectl call
+        # we use parallelism from now on because this is what it is altered at
+        # the API level by the kubectl call
         if parallelism is None:
             parallelism = self.obj["spec"]["parallelism"]
         self.exists(ensure=True)
