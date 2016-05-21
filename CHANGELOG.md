@@ -2,9 +2,17 @@
 
 ## 0.11.0
 
+pykube is now hosted under the Kel Project.
+
 ### Features
 
+* added Kubernetes API object: `ReplicaSet`
 * `Job` object uses `batch/v1` kind
+* `Job` object learned to scale to a new number of replicas
+
+### Bug fixes
+
+* `HTTPClient` learned to warn when an IP hostname is used on Python < 3.5
 
 ## 0.10.0
 
