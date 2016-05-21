@@ -1,5 +1,11 @@
 # ChangeLog
 
+## 0.11.1
+
+### Bug fixes
+
+* `HTTPClient` learned to issue requests against the batch APIs
+
 ## 0.11.0
 
 pykube is now hosted under the Kel Project.
