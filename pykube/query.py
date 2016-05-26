@@ -32,7 +32,9 @@ class BaseQuery(object):
         return clone
 
     def _clone(self):
-        return self.__class__(self.api, self.api_obj_class, namespace=self.namespace)
+        clone = self.__class__(self.api, self.api_obj_class, namespace=self.namespace)
+        clone.selector = self.selector
+        return clone
 
     def _build_api_url(self, params=None):
         if params is None:
