@@ -77,10 +77,12 @@ class HTTPClient(object):
             base = kwargs.pop("base")
         bits = [base, version]
         if "namespace" in kwargs:
-            bits.extend([
-                "namespaces",
-                kwargs.pop("namespace"),
-            ])
+            namespace = kwargs.pop("namespace")
+            if namespace:
+                bits.extend([
+                    "namespaces",
+                    namespace,
+                ])
         url = kwargs.get("url", "")
         if url.startswith("/"):
             url = url[1:]
