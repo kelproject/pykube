@@ -1,5 +1,11 @@
 # ChangeLog
 
+## 0.11.3
+
+### Bug fixes
+
+* CRITICAL: `Query._clone` learned to copy the selector
+
 ## 0.11.2
 
 ### Bug fixes
