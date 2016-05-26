@@ -67,7 +67,7 @@ class Query(BaseQuery):
         clone = self.filter(*args, **kwargs)
         num = len(clone)
         if num == 1:
-            return clone.query_cache[0]
+            return clone.query_cache["objects"][0]
         if not num:
             raise ObjectDoesNotExist("get() returned zero objects")
         raise ValueError("get() more than one object; use filter")
