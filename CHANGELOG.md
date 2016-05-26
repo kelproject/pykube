@@ -1,5 +1,12 @@
 # ChangeLog
 
+## 0.11.2
+
+### Bug fixes
+
+* `Query.get` re-learned how to return a single object from the query cache
+* `HTTPClient` learned how to handle no namespace to produce correct URLs
+
 ## 0.11.1
 
 ### Bug fixes
