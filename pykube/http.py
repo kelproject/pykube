@@ -10,7 +10,7 @@ import requests
 
 from six.moves.urllib.parse import urlparse
 
-from .exceptions import PyKubeError, HTTPError
+from .exceptions import HTTPError
 
 
 _ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
