@@ -170,7 +170,7 @@ class Pod(NamespacedAPIObject):
 
     @property
     def ready(self):
-        cs = self.obj["status"]["conditions"]
+        cs = self.obj["status"].get("conditions", [])
         condition = next((c for c in cs if c["type"] == "Ready"), None)
         return condition is not None and condition["status"] == "True"
 
