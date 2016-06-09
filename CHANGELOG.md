@@ -1,5 +1,17 @@
 # ChangeLog
 
+## 0.12.0
+
+### Features
+
+* `APIObject` learned to use JSON Merge Patch instead of JSON Patch
+* `Deployment` and `ReplicaSet` learned `scale` method
+
+### Bug fixes
+
+* `Job.scale` fixed to work as advertised
+* `Pod.ready` learned to handle no conditions as empty conditions
+
 ## 0.11.3
 
 ### Bug fixes
