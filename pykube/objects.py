@@ -1,11 +1,10 @@
 import copy
 import json
 
-import jsonpatch
-
 from .exceptions import ObjectDoesNotExist
 from .mixins import ReplicatedMixin, ScalableMixin
 from .query import ObjectManager
+from .utils import obj_merge
 
 
 DEFAULT_NAMESPACE = "default"
@@ -70,10 +69,10 @@ class APIObject(object):
         self.set_obj(r.json())
 
     def update(self):
-        patch = jsonpatch.make_patch(self._original_obj, self.obj)
+        self.obj = obj_merge(self.obj, self._original_obj)
         r = self.api.patch(**self.api_kwargs(
-            headers={"Content-Type": "application/json-patch+json"},
-            data=str(patch),
+            headers={"Content-Type": "application/merge-patch+json"},
+            data=json.dumps(self.obj),
         ))
         self.api.raise_for_status(r)
         self.set_obj(r.json())
