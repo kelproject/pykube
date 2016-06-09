@@ -5,6 +5,7 @@ import time
 import jsonpatch
 
 from .exceptions import ObjectDoesNotExist
+from .mixins import ReplicatedMixin, ScalableMixin
 from .query import ObjectManager
 
 
@@ -96,17 +97,6 @@ class NamespacedAPIObject(APIObject):
             return DEFAULT_NAMESPACE
 
 
-class ReplicatedAPIObject(object):
-
-    @property
-    def replicas(self):
-        return self.obj["spec"]["replicas"]
-
-    @replicas.setter
-    def replicas(self, value):
-        self.obj["spec"]["replicas"] = value
-
-
 class ConfigMap(NamespacedAPIObject):
 
     version = "v1"
@@ -121,7 +111,7 @@ class DaemonSet(NamespacedAPIObject):
     kind = "DaemonSet"
 
 
-class Deployment(NamespacedAPIObject, ReplicatedAPIObject):
+class Deployment(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
     version = "extensions/v1beta1"
     endpoint = "deployments"
@@ -142,30 +132,20 @@ class Ingress(NamespacedAPIObject):
     kind = "Ingress"
 
 
-class Job(NamespacedAPIObject):
+class Job(NamespacedAPIObject, ScalableMixin):
 
     version = "batch/v1"
     endpoint = "jobs"
     kind = "Job"
+    scalable_attr = "parallelism"
 
-    def scale(self, replicas=None):
-        """
-        Scales a job as it would be done by kubectl scale --replicas=num Jobs/myjob.
-        Replicas can start from zero.
-        """
-        parallelism = replicas
-        # we use parallelism from now on because this is what it is altered at
-        # the API level by the kubectl call
-        if parallelism is None:
-            parallelism = self.obj["spec"]["parallelism"]
-        self.exists(ensure=True)
-        self.obj["spec"]["parallelism"] = parallelism
-        self.update()
-        while True:
-            self.reload()
-            if self.self.obj["spec"]["parallelism"] == parallelism:
-                break
-            time.sleep(1)
+    @property
+    def parallelism(self):
+        return self.obj["spec"]["parallelism"]
+
+    @parallelism.setter
+    def parallelism(self, value):
+        self.obj["spec"]["parallelism"] = value
 
 
 class Namespace(APIObject):
@@ -195,26 +175,14 @@ class Pod(NamespacedAPIObject):
         return condition is not None and condition["status"] == "True"
 
 
-class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
+class ReplicationController(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
     version = "v1"
     endpoint = "replicationcontrollers"
     kind = "ReplicationController"
 
-    def scale(self, replicas=None):
-        if replicas is None:
-            replicas = self.replicas
-        self.exists(ensure=True)
-        self.replicas = replicas
-        self.update()
-        while True:
-            self.reload()
-            if self.replicas == replicas:
-                break
-            time.sleep(1)
 
-
-class ReplicaSet(NamespacedAPIObject, ReplicatedAPIObject):
+class ReplicaSet(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
     version = "extensions/v1beta1"
     endpoint = "replicasets"
