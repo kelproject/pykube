@@ -82,20 +82,31 @@ class Query(BaseQuery):
             kwargs["resource_version"] = since
         return WatchQuery(self.api, self.api_obj_class, **kwargs)
 
+    def execute(self):
+        kwargs = {"url": self._build_api_url()}
+        if self.api_obj_class.base:
+            kwargs["base"] = self.api_obj_class.base
+        if self.api_obj_class.version:
+            kwargs["version"] = self.api_obj_class.version
+        if self.namespace is not None and self.namespace is not all_:
+            kwargs["namespace"] = self.namespace
+        r = self.api.get(**kwargs)
+        r.raise_for_status()
+        return r
+
+    def iterator(self):
+        """
+        Execute the API request and return an iterator over the objects. This
+        method does not use the query cache.
+        """
+        for obj in self.execute().json()["items"]:
+            yield self.api_obj_class(self.api, obj)
+
     @property
     def query_cache(self):
         if not hasattr(self, "_query_cache"):
             cache = {"objects": []}
-            kwargs = {"url": self._build_api_url()}
-            if self.api_obj_class.base:
-                kwargs["base"] = self.api_obj_class.base
-            if self.api_obj_class.version:
-                kwargs["version"] = self.api_obj_class.version
-            if self.namespace is not None and self.namespace is not all_:
-                kwargs["namespace"] = self.namespace
-            r = self.api.get(**kwargs)
-            r.raise_for_status()
-            cache["response"] = r.json()
+            cache["response"] = self.execute().json()
             for obj in cache["response"]["items"]:
                 cache["objects"].append(self.api_obj_class(self.api, obj))
             self._query_cache = cache
