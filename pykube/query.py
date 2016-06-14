@@ -156,8 +156,10 @@ class ObjectManager(object):
     def __init__(self, namespace=None):
         self.namespace = namespace
 
-    def __call__(self, api):
-        return Query(api, self.api_obj_class, namespace=self.namespace)
+    def __call__(self, api, namespace=None):
+        if namespace is None:
+            namespace = self.namespace
+        return Query(api, self.api_obj_class, namespace=namespace)
 
     def __get__(self, obj, api_obj_class):
         assert obj is None, "cannot invoke objects on resource object."
