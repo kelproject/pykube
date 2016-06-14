@@ -1,6 +1,8 @@
 import copy
 import json
 
+import six
+
 from .exceptions import ObjectDoesNotExist
 from .mixins import ReplicatedMixin, ScalableMixin
 from .query import ObjectManager
@@ -10,6 +12,7 @@ from .utils import obj_merge
 DEFAULT_NAMESPACE = "default"
 
 
+@six.python_2_unicode_compatible
 class APIObject(object):
 
     objects = ObjectManager()
@@ -23,6 +26,12 @@ class APIObject(object):
     def set_obj(self, obj):
         self.obj = obj
         self._original_obj = copy.deepcopy(obj)
+
+    def __repr__(self):
+        return "<{kind} {name}>".format(kind=self.kind, name=self.name)
+
+    def __str__(self):
+        return self.name
 
     @property
     def name(self):
