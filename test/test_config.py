@@ -10,7 +10,7 @@ from . import TestCase
 
 
 GOOD_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config.yaml"])
-
+DEFAULTUSER_CONFIG_FILE_PATH = os.path.sep.join(["test", "test_config_default_user.yaml"])
 
 class TestConfig(TestCase):
 
@@ -101,3 +101,11 @@ class TestConfig(TestCase):
 
         self.cfg.set_current_context("thename")
         self.assertEqual("data", self.cfg.user)
+
+    def test_default_user(self):
+        """
+        User can sometimes be specified as 'default' with no corresponding definition
+        """
+        test_config = config.KubeConfig.from_file(DEFAULTUSER_CONFIG_FILE_PATH)
+        test_config.set_current_context("a_context")
+        self.assertIsNotNone(test_config.user)
