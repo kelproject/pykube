@@ -50,7 +50,6 @@ class HTTPClient(object):
         s = requests.Session()
         if "certificate-authority" in self.config.cluster:
             s.verify = self.config.cluster["certificate-authority"].filename()
-
         if "token" in self.config.user and self.config.user["token"]:
             s.headers["Authorization"] = "Bearer {}".format(self.config.user["token"])
         elif "client-certificate" in self.config.user:
@@ -58,7 +57,8 @@ class HTTPClient(object):
                 self.config.user["client-certificate"].filename(),
                 self.config.user["client-key"].filename(),
             )
-
+        else:  # no user present; don't configure anything
+            pass
         return s
 
     def get_kwargs(self, **kwargs):
