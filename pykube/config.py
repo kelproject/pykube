@@ -115,12 +115,17 @@ class KubeConfig(object):
         Returns known users by exposing as a read-only property.
         """
         if not hasattr(self, "_users"):
-            us = {}
-            for ur in self.doc["users"]:
-                us[ur["name"]] = u = copy.deepcopy(ur["user"])
-                BytesOrFile.maybe_set(u, "client-certificate")
-                BytesOrFile.maybe_set(u, "client-key")
+            us = {
+                "default": {}
+            }
+
+            if "users" in self.doc:
+                for ur in self.doc["users"]:
+                    us[ur["name"]] = u = copy.deepcopy(ur["user"])
+                    BytesOrFile.maybe_set(u, "client-certificate")
+                    BytesOrFile.maybe_set(u, "client-key")
             self._users = us
+
         return self._users
 
     @property
@@ -152,7 +157,11 @@ class KubeConfig(object):
         """
         if self.current_context is None:
             raise exceptions.PyKubeError("current context not set; call set_current_context")
-        return self.users[self.contexts[self.current_context]["user"]]
+
+        context = self.contexts[self.current_context]
+        current_user = context["user"]
+
+        return self.users[current_user]
 
 
 class BytesOrFile(object):
