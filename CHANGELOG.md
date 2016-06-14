@@ -1,5 +1,12 @@
 # ChangeLog
 
+## Development
+
+### Features
+
+* `KubeConfig` learned to handle empty or missing user configuration
+* `HTTPClient` learned to create an HTTP session with no authentication
+
 ## 0.12.0
 
 ### Features
