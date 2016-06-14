@@ -32,7 +32,9 @@ class BaseQuery(object):
         return clone
 
     def _clone(self):
-        return self.__class__(self.api, self.api_obj_class, namespace=self.namespace)
+        clone = self.__class__(self.api, self.api_obj_class, namespace=self.namespace)
+        clone.selector = self.selector
+        return clone
 
     def _build_api_url(self, params=None):
         if params is None:
@@ -67,7 +69,7 @@ class Query(BaseQuery):
         clone = self.filter(*args, **kwargs)
         num = len(clone)
         if num == 1:
-            return clone.query_cache[0]
+            return clone.query_cache["objects"][0]
         if not num:
             raise ObjectDoesNotExist("get() returned zero objects")
         raise ValueError("get() more than one object; use filter")

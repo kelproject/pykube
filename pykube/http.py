@@ -5,12 +5,12 @@ HTTP request related code.
 import posixpath
 import re
 import sys
-
+import warnings
 import requests
 
 from six.moves.urllib.parse import urlparse
 
-from .exceptions import PyKubeError, HTTPError
+from .exceptions import HTTPError
 
 
 _ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
@@ -40,7 +40,7 @@ class HTTPClient(object):
     def url(self, value):
         pr = urlparse(value)
         if sys.version_info < (3, 5) and ("::" in pr.hostname or _ipv4_re.match(pr.hostname)):
-            raise PyKubeError("IP address hostnames are not supported with Python < 3.5. Please see https://github.com/kelproject/pykube/issues/29 for more info.")
+            warnings.warn("IP address hostnames are not supported with Python < 3.5. Please see https://github.com/kelproject/pykube/issues/29 for more info.", RuntimeWarning)
         self._url = pr.geturl()
 
     def build_session(self):
@@ -69,7 +69,7 @@ class HTTPClient(object):
         version = kwargs.pop("version", "v1")
         if version == "v1":
             base = kwargs.pop("base", "/api")
-        elif version.startswith("extensions/"):
+        elif any(map(version.startswith, ["extensions/", "batch/"])):
             base = kwargs.pop("base", "/apis")
         else:
             if "base" not in kwargs:
@@ -77,10 +77,12 @@ class HTTPClient(object):
             base = kwargs.pop("base")
         bits = [base, version]
         if "namespace" in kwargs:
-            bits.extend([
-                "namespaces",
-                kwargs.pop("namespace"),
-            ])
+            namespace = kwargs.pop("namespace")
+            if namespace:
+                bits.extend([
+                    "namespaces",
+                    namespace,
+                ])
         url = kwargs.get("url", "")
         if url.startswith("/"):
             url = url[1:]

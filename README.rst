@@ -107,7 +107,7 @@ Create a ReplicationController:
             }
         }
     }
-    pykube.ReplicationController(obj).create()
+    pykube.ReplicationController(api, obj).create()
 
 Delete a ReplicationController:
 
@@ -121,7 +121,7 @@ Delete a ReplicationController:
             "namespace": "gondor-system"
         }
     }
-    pykube.ReplicationController(obj).delete()
+    pykube.ReplicationController(api, obj).delete()
 
 Requirements
 ------------
