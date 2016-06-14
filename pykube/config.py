@@ -76,6 +76,34 @@ class KubeConfig(object):
         self.filename = filename
         return self
 
+    @classmethod
+    def from_url(cls, url):
+        """
+        Creates an instance of the KubeConfig class from a single URL (useful
+        for interacting with kubectl proxy).
+        """
+        doc = {
+            "clusters": [
+                {
+                    "name": "self",
+                    "cluster": {
+                        "server": url,
+                    },
+                },
+            ],
+            "contexts": [
+                {
+                    "name": "self",
+                    "context": {
+                        "cluster": "self",
+                    },
+                }
+            ],
+            "current-context": "self",
+        }
+        self = cls(doc)
+        return self
+
     def __init__(self, doc):
         """
         Creates an instance of the KubeConfig class.
