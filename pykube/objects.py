@@ -1,9 +1,6 @@
 import copy
 import json
-import time
 import os.path as op
-
-import jsonpatch
 
 from .exceptions import ObjectDoesNotExist
 from .mixins import ReplicatedMixin, ScalableMixin
