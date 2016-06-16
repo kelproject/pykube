@@ -74,6 +74,12 @@ class Query(BaseQuery):
             raise ObjectDoesNotExist("get() returned zero objects")
         raise ValueError("get() more than one object; use filter")
 
+    def get_or_none(self, *args, **kwargs):
+        try:
+            return self.get(*args, **kwargs)
+        except ObjectDoesNotExist:
+            return None
+
     def watch(self, since=None):
         kwargs = {"namespace": self.namespace}
         if since is now:
