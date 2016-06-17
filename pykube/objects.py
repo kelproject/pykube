@@ -1,5 +1,6 @@
 import copy
 import json
+import os.path as op
 
 import six
 
@@ -43,11 +44,14 @@ class APIObject(object):
 
     def api_kwargs(self, **kwargs):
         kw = {}
-        collection = kwargs.pop("collection", False)
-        if collection:
+        # Construct url for api request
+        obj_list = kwargs.pop("obj_list", False)
+        if obj_list:
             kw["url"] = self.endpoint
         else:
-            kw["url"] = "{}/{}".format(self.endpoint, self._original_obj["metadata"]["name"])
+            operation = kwargs.pop("operation", "")
+            kw["url"] = op.normpath(op.join(self.endpoint, self.name, operation))
+
         if self.base:
             kw["base"] = self.base
         kw["version"] = self.version
@@ -68,7 +72,7 @@ class APIObject(object):
         return True
 
     def create(self):
-        r = self.api.post(**self.api_kwargs(data=json.dumps(self.obj), collection=True))
+        r = self.api.post(**self.api_kwargs(data=json.dumps(self.obj), obj_list=True))
         self.api.raise_for_status(r)
         self.set_obj(r.json())
 
