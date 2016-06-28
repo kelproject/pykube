@@ -177,11 +177,12 @@ class Pod(NamespacedAPIObject):
         return condition is not None and condition["status"] == "True"
 
     def logs(self, container=None, pretty=None, previous=False,
-                 since_seconds=None, since_time=None, timestamps=False,
-                 tail_lines=None, limit_bytes=None):
+             since_seconds=None, since_time=None, timestamps=False,
+             tail_lines=None, limit_bytes=None):
         """
         Produces the same result as calling kubectl logs pod/<pod-name>.
-        Check parameters meaning at http://kubernetes.io/docs/api-reference/v1/operations/,
+        Check parameters meaning at
+        http://kubernetes.io/docs/api-reference/v1/operations/,
         part 'read log of the specified Pod'. The result is plain text.
         """
         url = "log"
