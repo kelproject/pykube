@@ -85,6 +85,11 @@ class HTTPClient(object):
                     "namespaces",
                     namespace,
                 ])
+        if "pods" in kwargs:
+            bits.extend([
+                "pods",
+                kwargs.pop("pods")
+            ])
         url = kwargs.get("url", "")
         if url.startswith("/"):
             url = url[1:]
