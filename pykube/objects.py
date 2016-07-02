@@ -216,8 +216,12 @@ class Pod(NamespacedAPIObject):
 
         query_string = urlencode(params)
         url += "?{}".format(query_string) if query_string else ""
-        kwargs = {"url": url, "pods": self.name,
-                  "namespace": self.namespace, "version": self.version}
+        kwargs = {
+            "version": self.version,
+            "url": url,
+            "namespace": self.namespace,
+            "operation": "pods/{}".format(self.name),
+        }
         r = self.api.get(**kwargs)
         r.raise_for_status()
         return r.text
