@@ -208,7 +208,7 @@ class BytesOrFile(object):
         """
         self._filename = None
         self._bytes = None
-        if data.startswith("/"):
+        if os.path.isfile(data):
             self._filename = data
         else:
             self._bytes = base64.b64decode(data)
