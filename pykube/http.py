@@ -50,6 +50,8 @@ class HTTPClient(object):
         s = requests.Session()
         if "certificate-authority" in self.config.cluster:
             s.verify = self.config.cluster["certificate-authority"].filename()
+        elif "insecure-skip-tls-verify" in self.config.cluster:
+            s.verify = not self.config.cluster["insecure-skip-tls-verify"]
         if "token" in self.config.user and self.config.user["token"]:
             s.headers["Authorization"] = "Bearer {}".format(self.config.user["token"])
         elif "client-certificate" in self.config.user:
