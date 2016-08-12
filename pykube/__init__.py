@@ -10,6 +10,7 @@ from .objects import (  # noqa
     DaemonSet,
     Deployment,
     Endpoint,
+    Event,
     HorizontalPodAutoscaler,
     Ingress,
     Job,
@@ -19,7 +20,9 @@ from .objects import (  # noqa
     Pod,
     ReplicationController,
     ReplicaSet,
+    ResourceQuota,
     Secret,
     Service,
+    ServiceAccount,
 )
 from .query import now, all_ as all, everything  # noqa

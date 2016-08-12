@@ -136,6 +136,27 @@ class Endpoint(NamespacedAPIObject):
     kind = "Endpoint"
 
 
+class Event(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "events"
+    kind = "Event"
+
+
+class ResourceQuota(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "resourcequotas"
+    kind = "ResourceQuota"
+
+
+class ServiceAccount(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "serviceaccounts"
+    kind = "ServiceAccount"
+
+
 class Ingress(NamespacedAPIObject):
 
     version = "extensions/v1beta1"
