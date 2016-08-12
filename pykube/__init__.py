@@ -10,6 +10,7 @@ from .objects import (  # noqa
     DaemonSet,
     Deployment,
     Endpoint,
+    HorizontalPodAutoscaler,
     Ingress,
     Job,
     Namespace,

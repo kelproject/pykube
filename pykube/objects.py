@@ -226,3 +226,10 @@ class PersistentVolumeClaim(NamespacedAPIObject):
     version = "v1"
     endpoint = "persistentvolumeclaims"
     kind = "PersistentVolumeClaim"
+
+
+class HorizontalPodAutoscaler(NamespacedAPIObject):
+
+    version = "autoscaling/v1"
+    endpoint = "horizontalpodautoscalers"
+    kind = "HorizontalPodAutoscaler"
