@@ -128,6 +128,13 @@ class Deployment(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
     endpoint = "deployments"
     kind = "Deployment"
 
+    @property
+    def ready(self):
+        return (
+            self.obj["status"]["observedGeneration"] >= self.obj["metadata"]["generation"] and
+            self.obj["status"]["updatedReplicas"] == self.replicas
+        )
+
 
 class Endpoint(NamespacedAPIObject):
 
