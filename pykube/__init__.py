@@ -24,5 +24,6 @@ from .objects import (  # noqa
     Secret,
     Service,
     ServiceAccount,
+    ThirdPartyResource,
 )
 from .query import now, all_ as all, everything  # noqa
