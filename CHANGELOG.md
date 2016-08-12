@@ -4,8 +4,13 @@
 
 ### Features
 
+* added Kubernetes API objects: `Event`, `ResourceQuota`, `ServiceAccount`, `ThirdPartyResource`, `PetSet` and `HorizontalPodAutoscaler`
 * `KubeConfig` learned to handle empty or missing user configuration
 * `HTTPClient` learned to create an HTTP session with no authentication
+
+### Bug fixes
+
+* `WatchQuery` learned to query against non-v1 API objects
 
 ## 0.12.0
 
