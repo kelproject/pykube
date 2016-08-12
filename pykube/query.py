@@ -146,6 +146,8 @@ class WatchQuery(BaseQuery):
             "url": url,
             "stream": True,
         }
+        if self.api_obj_class.version:
+            kwargs["version"] = self.api_obj_class.version
         r = self.api.get(**kwargs)
         self.api.raise_for_status(r)
         WatchEvent = namedtuple("WatchEvent", "type object")
