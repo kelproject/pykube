@@ -4,7 +4,13 @@
 
 ### Features
 
-* added Kubernetes API objects: `Event`, `ResourceQuota`, `ServiceAccount`, `ThirdPartyResource`, `PetSet` and `HorizontalPodAutoscaler`
+* added Kubernetes API objects:
+  * `Event`
+  * `ResourceQuota`
+  * `ServiceAccount`
+  * `ThirdPartyResource`
+  * `PetSet`
+  * `HorizontalPodAutoscaler`
 * `KubeConfig` learned to handle empty or missing user configuration
 * `HTTPClient` learned to create an HTTP session with no authentication
 
