@@ -15,6 +15,7 @@ from .objects import (  # noqa
     Job,
     Namespace,
     Node,
+    PetSet,
     Pod,
     ReplicationController,
     ReplicaSet,

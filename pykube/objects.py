@@ -233,3 +233,10 @@ class HorizontalPodAutoscaler(NamespacedAPIObject):
     version = "autoscaling/v1"
     endpoint = "horizontalpodautoscalers"
     kind = "HorizontalPodAutoscaler"
+
+
+class PetSet(NamespacedAPIObject):
+
+    version = "apps/v1alpha1"
+    endpoint = "petsets"
+    kind = "PetSet"
