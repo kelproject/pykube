@@ -43,6 +43,12 @@ class HTTPClient(object):
             warnings.warn("IP address hostnames are not supported with Python < 3.5. Please see https://github.com/kelproject/pykube/issues/29 for more info.", RuntimeWarning)
         self._url = pr.geturl()
 
+    def _set_bearer_token(self, session, token):
+        """
+        Set the bearer authorization token for the session.
+        """
+        session.headers["Authorization"] = "Bearer {}".format(token)
+
     def build_session(self):
         """
         Creates a new session for the client.
@@ -53,7 +59,13 @@ class HTTPClient(object):
         elif "insecure-skip-tls-verify" in self.config.cluster:
             s.verify = not self.config.cluster["insecure-skip-tls-verify"]
         if "token" in self.config.user and self.config.user["token"]:
-            s.headers["Authorization"] = "Bearer {}".format(self.config.user["token"])
+            self._set_bearer_token(s, self.config.user["token"])
+        elif "auth-provider" in self.config.user:
+            config = self.config.user['auth-provider'].get('config', None)
+            if config:
+                token = config.get('access-token', None)
+                if token:
+                    self._set_bearer_token(s, token)
         elif "client-certificate" in self.config.user:
             s.cert = (
                 self.config.user["client-certificate"].filename(),
