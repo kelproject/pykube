@@ -2,6 +2,8 @@
 
 ## Development
 
+## 0.13.0
+
 ### Features
 
 * added Kubernetes API objects:
@@ -13,6 +15,7 @@
   * `HorizontalPodAutoscaler`
 * `KubeConfig` learned to handle empty or missing user configuration
 * `HTTPClient` learned to create an HTTP session with no authentication
+* `Deployment` learned to report itself ready
 
 ### Bug fixes
 
