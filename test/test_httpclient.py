@@ -126,4 +126,5 @@ class TestHTTPClient(TestCase):
 
         client = pykube.HTTPClient(pykube.KubeConfig(doc=self.config))
         _log.debug('Checking headers %s', client.session.headers)
+        self.assertIn('Authorization', client.session.headers)
         self.assertEqual(client.session.headers['Authorization'], 'Bearer abc')

@@ -61,11 +61,11 @@ class HTTPClient(object):
         if "token" in self.config.user and self.config.user["token"]:
             self._set_bearer_token(s, self.config.user["token"])
         elif "auth-provider" in self.config.user:
-            config = self.config.user['auth-provider'].get('config', None)
-            if config:
-                token = config.get('access-token', None)
-                if token:
-                    self._set_bearer_token(s, token)
+            try:
+                token = self.config.user['auth-provider']['config']['access-token']
+                self._set_bearer_token(s, token)
+            except KeyError:
+                pass
         elif "client-certificate" in self.config.user:
             s.cert = (
                 self.config.user["client-certificate"].filename(),
