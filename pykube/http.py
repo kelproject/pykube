@@ -59,6 +59,8 @@ class HTTPClient(object):
                 self.config.user["client-certificate"].filename(),
                 self.config.user["client-key"].filename(),
             )
+        elif self.config.user.get("username") and self.config.user.get("password"):
+            s.auth = (self.config.user["username"], self.config.user["password"])
         else:  # no user present; don't configure anything
             pass
         return s
