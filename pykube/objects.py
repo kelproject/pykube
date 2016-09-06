@@ -207,6 +207,23 @@ class Node(APIObject):
     endpoint = "nodes"
     kind = "Node"
 
+    @property
+    def unschedulable(self):
+        if 'unschedulable' in self.obj["spec"]:
+            return self.obj["spec"]["unschedulable"]
+        return False
+
+    @unschedulable.setter
+    def unschedulable(self, value):
+        self.obj["spec"]["unschedulable"] = value
+        self.update()
+
+    def cordon(self):
+        self.unschedulable = True
+
+    def uncordon(self):
+        self.unschedulable = False
+
 
 class Pod(NamespacedAPIObject):
 
