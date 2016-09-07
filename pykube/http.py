@@ -69,13 +69,17 @@ class HTTPClient(object):
                 raise TypeError("unknown API version; base kwarg must be specified.")
             base = kwargs.pop("base")
         bits = [base, version]
+        if self.config.namespace:
+            namespace = self.config.namespace
         if "namespace" in kwargs:
-            namespace = kwargs.pop("namespace")
-            if namespace:
-                bits.extend([
-                    "namespaces",
-                    namespace,
-                ])
+            n = kwargs.pop("namespace")
+            if n:
+                namespace = n
+        if namespace:
+            bits.extend([
+                "namespaces",
+                namespace,
+            ])
         url = kwargs.get("url", "")
         if url.startswith("/"):
             url = url[1:]
