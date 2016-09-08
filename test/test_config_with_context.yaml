@@ -1,0 +1,17 @@
+# TODO: Replace with a more realistic example
+current-context: thecluster
+clusters:
+    - name: thecluster
+      cluster: {}
+users:
+    - name: admin
+      user:
+        username: adm
+        password: somepassword
+contexts:
+    - name: thecluster
+      context:
+        cluster: thecluster
+        user: admin
+    - name: second
+      context: secondcontext
