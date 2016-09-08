@@ -194,24 +194,31 @@ class BytesOrFile(object):
         file_key = key
         data_key = "{}-data".format(key)
         if data_key in d:
-            d[file_key] = cls(d[data_key])
+            d[file_key] = cls(data=d[data_key])
             del d[data_key]
         elif file_key in d:
-            d[file_key] = cls(d[file_key])
+            d[file_key] = cls(filename=d[file_key])
 
-    def __init__(self, data):
+    def __init__(self, filename=None, data=None):
         """
         Creates a new instance of BytesOrFile.
 
         :Parameters:
-           - `data`: A full path to a file or base64 encoded bytes
+           - `filename`: A full path to a file
+           - `data`: base64 encoded bytes
         """
         self._filename = None
         self._bytes = None
-        if os.path.isfile(data):
-            self._filename = data
-        else:
+        if filename is not None and data is not None:
+            raise TypeError("filename or data kwarg must be specified, not both")
+        elif filename is not None:
+            if not os.path.isfile(filename):
+                raise exceptions.PyKubeError("'{}' file does not exist".format(filename))
+            self._filename = filename
+        elif data is not None:
             self._bytes = base64.b64decode(data)
+        else:
+            raise TypeError("filename or data kwarg must be specified")
 
     def bytes(self):
         """
