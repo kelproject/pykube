@@ -12,3 +12,6 @@ contexts:
         user: admin
     - name: second
       context: secondcontext
+    - name: context_with_namespace
+      context:
+        namespace: foospace
