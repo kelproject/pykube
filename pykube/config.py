@@ -190,7 +190,7 @@ class KubeConfig(object):
         """
         Returns the current context namespace by exposing as a read-only property.
         """
-        return self.contexts[self.current_context].get("namespace", "")
+        return self.contexts[self.current_context].get("namespace", "default")
 
     def persist_doc(self):
         if not hasattr(self, "filename") or not self.filename:
