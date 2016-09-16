@@ -105,7 +105,7 @@ class HTTPClient(object):
             if resp.headers["content-type"] == "application/json":
                 payload = resp.json()
                 if payload["kind"] == "Status":
-                    raise HTTPError(payload["message"])
+                    raise HTTPError(resp.status_code, payload["message"])
             raise
 
     def request(self, *args, **kwargs):
