@@ -25,5 +25,9 @@ from .objects import (  # noqa
     Service,
     ServiceAccount,
     ThirdPartyResource,
+    Role,
+    ClusterRole,
+    RoleBinding,
+    ClusterRoleBinding,
 )
 from .query import now, all_ as all, everything  # noqa
