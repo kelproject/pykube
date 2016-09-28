@@ -292,3 +292,31 @@ class PetSet(NamespacedAPIObject):
     version = "apps/v1alpha1"
     endpoint = "petsets"
     kind = "PetSet"
+
+
+class Role(NamespacedAPIObject):
+
+    version = "rbac.authorization.k8s.io/v1alpha1"
+    endpoint = "roles"
+    kind = "Role"
+
+
+class RoleBinding(NamespacedAPIObject):
+
+    version = "rbac.authorization.k8s.io/v1alpha1"
+    endpoint = "rolebindings"
+    kind = "RoleBinding"
+
+
+class ClusterRole(APIObject):
+
+    version = "rbac.authorization.k8s.io/v1alpha1"
+    endpoint = "clusterroles"
+    kind = "ClusterRole"
+
+
+class ClusterRoleBinding(APIObject):
+
+    version = "rbac.authorization.k8s.io/v1alpha1"
+    endpoint = "clusterrolebindings"
+    kind = "ClusterRoleBinding"
