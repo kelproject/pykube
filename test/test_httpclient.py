@@ -1,12 +1,46 @@
 """
 pykube.http unittests
 """
+import copy
+import logging
+
 import pykube
 
 from . import TestCase
 
+BASE_CONFIG = {
+    "clusters": [
+        {
+            "name": "test-cluster",
+            "cluster": {
+                "server": "http://localhost:8080",
+            }
+        }
+    ],
+    "contexts": [
+        {
+            "name": "test-cluster",
+            "context": {
+                "cluster": "test-cluster",
+                "user": "test-user",
+            }
+        }
+    ],
+    "users": [
+        {
+            'name': 'test-user',
+            'user': {},
+        }
+    ],
+    "current-context": "test-cluster",
+}
+
+_log = logging.getLogger(__name__)
+
 
 class TestHTTPClient(TestCase):
+    def setUp(self):
+        self.config = copy.deepcopy(BASE_CONFIG)
 
     def ensure_no_auth(self, client):
         self.assertIsNone(client.session.cert, msg="Should not send certs when not configured")
@@ -67,3 +101,30 @@ class TestHTTPClient(TestCase):
         }
         client = pykube.HTTPClient(pykube.KubeConfig(doc=config))
         self.ensure_no_auth(client)
+
+    def test_build_session_auth_provider(self):
+        """Test that HTTPClient correctly parses the auth-provider config.
+
+        Observed in GKE with kubelet v1.3.
+        """
+        self.config.update({
+            'users': [
+                {
+                    'name': 'test-user',
+                    'user': {
+                        'auth-provider': {
+                            'config': {
+                                'access-token': 'abc',
+                                'expiry': '2016-08-24T16:19:17.19878675-07:00',
+                            },
+                        },
+                    },
+                },
+            ]
+        })
+        _log.info('Built config: %s', self.config)
+
+        client = pykube.HTTPClient(pykube.KubeConfig(doc=self.config))
+        _log.debug('Checking headers %s', client.session.headers)
+        self.assertIn('Authorization', client.session.headers)
+        self.assertEqual(client.session.headers['Authorization'], 'Bearer abc')
