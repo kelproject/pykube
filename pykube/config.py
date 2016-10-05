@@ -183,6 +183,22 @@ class KubeConfig(object):
             raise exceptions.PyKubeError("current context not set; call set_current_context")
         return self.users.get(self.contexts[self.current_context].get("user", ""), {})
 
+    def persist_doc(self):
+        if not hasattr(self, "filename") or not self.filename:
+            # Config was provided as string, not way to persit it
+            return
+        with open(self.filename, "w") as f:
+            yaml.safe_dump(self.doc, f, encoding='utf-8',
+                           allow_unicode=True, default_flow_style=False)
+
+    def reload(self):
+        if hasattr(self, "_users"):
+            delattr(self, "_users")
+        if hasattr(self, "_contexts"):
+            delattr(self, "_contexts")
+        if hasattr(self, "_clusters"):
+            delattr(self, "_clusters")
+
 
 class BytesOrFile(object):
     """

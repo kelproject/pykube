@@ -102,22 +102,15 @@ class TestHTTPClient(TestCase):
         client = pykube.HTTPClient(pykube.KubeConfig(doc=config))
         self.ensure_no_auth(client)
 
-    def test_build_session_auth_provider(self):
-        """Test that HTTPClient correctly parses the auth-provider config.
-
-        Observed in GKE with kubelet v1.3.
+    def test_build_session_bearer_token(self):
+        """Test that HTTPClient correctly parses the token
         """
         self.config.update({
             'users': [
                 {
                     'name': 'test-user',
                     'user': {
-                        'auth-provider': {
-                            'config': {
-                                'access-token': 'abc',
-                                'expiry': '2016-08-24T16:19:17.19878675-07:00',
-                            },
-                        },
+                        'token': 'test'
                     },
                 },
             ]
@@ -127,4 +120,4 @@ class TestHTTPClient(TestCase):
         client = pykube.HTTPClient(pykube.KubeConfig(doc=self.config))
         _log.debug('Checking headers %s', client.session.headers)
         self.assertIn('Authorization', client.session.headers)
-        self.assertEqual(client.session.headers['Authorization'], 'Bearer abc')
+        self.assertEqual(client.session.headers['Authorization'], 'Bearer test')
