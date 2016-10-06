@@ -3,10 +3,17 @@ HTTP request related code.
 """
 
 import posixpath
-
+import re
+import sys
+import warnings
 import requests
 
+from six.moves.urllib.parse import urlparse
+
 from .exceptions import HTTPError
+
+
+_ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 
 
 class HTTPClient(object):
@@ -25,6 +32,17 @@ class HTTPClient(object):
         self.url = self.config.cluster["server"]
         self.session = self.build_session()
 
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, value):
+        pr = urlparse(value)
+        if sys.version_info < (3, 5) and ("::" in pr.hostname or _ipv4_re.match(pr.hostname)):
+            warnings.warn("IP address hostnames are not supported with Python < 3.5. Please see https://github.com/kelproject/pykube/issues/29 for more info.", RuntimeWarning)
+        self._url = pr.geturl()
+
     def build_session(self):
         """
         Creates a new session for the client.
@@ -34,11 +52,13 @@ class HTTPClient(object):
             s.verify = self.config.cluster["certificate-authority"].filename()
         if "token" in self.config.user and self.config.user["token"]:
             s.headers["Authorization"] = "Bearer {}".format(self.config.user["token"])
-        else:
+        elif "client-certificate" in self.config.user:
             s.cert = (
                 self.config.user["client-certificate"].filename(),
                 self.config.user["client-key"].filename(),
             )
+        else:  # no user present; don't configure anything
+            pass
         return s
 
     def get_kwargs(self, **kwargs):
@@ -51,7 +71,7 @@ class HTTPClient(object):
         version = kwargs.pop("version", "v1")
         if version == "v1":
             base = kwargs.pop("base", "/api")
-        elif version.startswith("extensions/"):
+        elif any(map(version.startswith, ["extensions/", "batch/"])):
             base = kwargs.pop("base", "/apis")
         else:
             if "base" not in kwargs:
@@ -59,15 +79,12 @@ class HTTPClient(object):
             base = kwargs.pop("base")
         bits = [base, version]
         if "namespace" in kwargs:
-            bits.extend([
-                "namespaces",
-                kwargs.pop("namespace"),
-            ])
-        if "pods" in kwargs:
-            bits.extend([
-                "pods",
-                kwargs.pop("pods")
-            ])
+            namespace = kwargs.pop("namespace")
+            if namespace:
+                bits.extend([
+                    "namespaces",
+                    namespace,
+                ])
         url = kwargs.get("url", "")
         if url.startswith("/"):
             url = url[1:]

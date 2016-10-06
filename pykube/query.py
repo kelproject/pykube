@@ -32,7 +32,9 @@ class BaseQuery(object):
         return clone
 
     def _clone(self):
-        return self.__class__(self.api, self.api_obj_class, namespace=self.namespace)
+        clone = self.__class__(self.api, self.api_obj_class, namespace=self.namespace)
+        clone.selector = self.selector
+        return clone
 
     def _build_api_url(self, params=None):
         if params is None:
@@ -67,10 +69,16 @@ class Query(BaseQuery):
         clone = self.filter(*args, **kwargs)
         num = len(clone)
         if num == 1:
-            return clone.query_cache[0]
+            return clone.query_cache["objects"][0]
         if not num:
             raise ObjectDoesNotExist("get() returned zero objects")
         raise ValueError("get() more than one object; use filter")
+
+    def get_or_none(self, *args, **kwargs):
+        try:
+            return self.get(*args, **kwargs)
+        except ObjectDoesNotExist:
+            return None
 
     def watch(self, since=None):
         kwargs = {"namespace": self.namespace}
@@ -80,20 +88,31 @@ class Query(BaseQuery):
             kwargs["resource_version"] = since
         return WatchQuery(self.api, self.api_obj_class, **kwargs)
 
+    def execute(self):
+        kwargs = {"url": self._build_api_url()}
+        if self.api_obj_class.base:
+            kwargs["base"] = self.api_obj_class.base
+        if self.api_obj_class.version:
+            kwargs["version"] = self.api_obj_class.version
+        if self.namespace is not None and self.namespace is not all_:
+            kwargs["namespace"] = self.namespace
+        r = self.api.get(**kwargs)
+        r.raise_for_status()
+        return r
+
+    def iterator(self):
+        """
+        Execute the API request and return an iterator over the objects. This
+        method does not use the query cache.
+        """
+        for obj in self.execute().json()["items"]:
+            yield self.api_obj_class(self.api, obj)
+
     @property
     def query_cache(self):
         if not hasattr(self, "_query_cache"):
             cache = {"objects": []}
-            kwargs = {"url": self._build_api_url()}
-            if self.api_obj_class.base:
-                kwargs["base"] = self.api_obj_class.base
-            if self.api_obj_class.version:
-                kwargs["version"] = self.api_obj_class.version
-            if self.namespace is not None and self.namespace is not all_:
-                kwargs["namespace"] = self.namespace
-            r = self.api.get(**kwargs)
-            r.raise_for_status()
-            cache["response"] = r.json()
+            cache["response"] = self.execute().json()
             for obj in cache["response"]["items"]:
                 cache["objects"].append(self.api_obj_class(self.api, obj))
             self._query_cache = cache
@@ -143,8 +162,10 @@ class ObjectManager(object):
     def __init__(self, namespace=None):
         self.namespace = namespace
 
-    def __call__(self, api):
-        return Query(api, self.api_obj_class, namespace=self.namespace)
+    def __call__(self, api, namespace=None):
+        if namespace is None:
+            namespace = self.namespace
+        return Query(api, self.api_obj_class, namespace=namespace)
 
     def __get__(self, obj, api_obj_class):
         assert obj is None, "cannot invoke objects on resource object."

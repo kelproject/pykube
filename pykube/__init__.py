@@ -16,6 +16,7 @@ from .objects import (  # noqa
     Node,
     Pod,
     ReplicationController,
+    ReplicaSet,
     Secret,
     Service,
 )

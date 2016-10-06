@@ -1,17 +1,20 @@
 import copy
 import json
-import time
+import os.path as op
 
-import jsonpatch
+import six
 
 from six.moves.urllib.parse import urlencode
 from .exceptions import ObjectDoesNotExist
+from .mixins import ReplicatedMixin, ScalableMixin
 from .query import ObjectManager
+from .utils import obj_merge
 
 
 DEFAULT_NAMESPACE = "default"
 
 
+@six.python_2_unicode_compatible
 class APIObject(object):
 
     objects = ObjectManager()
@@ -26,6 +29,12 @@ class APIObject(object):
         self.obj = obj
         self._original_obj = copy.deepcopy(obj)
 
+    def __repr__(self):
+        return "<{kind} {name}>".format(kind=self.kind, name=self.name)
+
+    def __str__(self):
+        return self.name
+
     @property
     def name(self):
         return self.obj["metadata"]["name"]
@@ -36,11 +45,14 @@ class APIObject(object):
 
     def api_kwargs(self, **kwargs):
         kw = {}
-        collection = kwargs.pop("collection", False)
-        if collection:
+        # Construct url for api request
+        obj_list = kwargs.pop("obj_list", False)
+        if obj_list:
             kw["url"] = self.endpoint
         else:
-            kw["url"] = "{}/{}".format(self.endpoint, self._original_obj["metadata"]["name"])
+            operation = kwargs.pop("operation", "")
+            kw["url"] = op.normpath(op.join(self.endpoint, self.name, operation))
+
         if self.base:
             kw["base"] = self.base
         kw["version"] = self.version
@@ -61,7 +73,7 @@ class APIObject(object):
         return True
 
     def create(self):
-        r = self.api.post(**self.api_kwargs(data=json.dumps(self.obj), collection=True))
+        r = self.api.post(**self.api_kwargs(data=json.dumps(self.obj), obj_list=True))
         self.api.raise_for_status(r)
         self.set_obj(r.json())
 
@@ -71,10 +83,10 @@ class APIObject(object):
         self.set_obj(r.json())
 
     def update(self):
-        patch = jsonpatch.make_patch(self._original_obj, self.obj)
+        self.obj = obj_merge(self.obj, self._original_obj)
         r = self.api.patch(**self.api_kwargs(
-            headers={"Content-Type": "application/json-patch+json"},
-            data=str(patch),
+            headers={"Content-Type": "application/merge-patch+json"},
+            data=json.dumps(self.obj),
         ))
         self.api.raise_for_status(r)
         self.set_obj(r.json())
@@ -97,17 +109,6 @@ class NamespacedAPIObject(APIObject):
             return DEFAULT_NAMESPACE
 
 
-class ReplicatedAPIObject(object):
-
-    @property
-    def replicas(self):
-        return self.obj["spec"]["replicas"]
-
-    @replicas.setter
-    def replicas(self, value):
-        self.obj["spec"]["replicas"] = value
-
-
 class ConfigMap(NamespacedAPIObject):
 
     version = "v1"
@@ -122,7 +123,7 @@ class DaemonSet(NamespacedAPIObject):
     kind = "DaemonSet"
 
 
-class Deployment(NamespacedAPIObject, ReplicatedAPIObject):
+class Deployment(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
     version = "extensions/v1beta1"
     endpoint = "deployments"
@@ -143,11 +144,20 @@ class Ingress(NamespacedAPIObject):
     kind = "Ingress"
 
 
-class Job(NamespacedAPIObject):
+class Job(NamespacedAPIObject, ScalableMixin):
 
-    version = "extensions/v1beta1"
+    version = "batch/v1"
     endpoint = "jobs"
     kind = "Job"
+    scalable_attr = "parallelism"
+
+    @property
+    def parallelism(self):
+        return self.obj["spec"]["parallelism"]
+
+    @parallelism.setter
+    def parallelism(self, value):
+        self.obj["spec"]["parallelism"] = value
 
 
 class Namespace(APIObject):
@@ -172,7 +182,7 @@ class Pod(NamespacedAPIObject):
 
     @property
     def ready(self):
-        cs = self.obj["status"]["conditions"]
+        cs = self.obj["status"].get("conditions", [])
         condition = next((c for c in cs if c["type"] == "Ready"), None)
         return condition is not None and condition["status"] == "True"
 
@@ -206,30 +216,29 @@ class Pod(NamespacedAPIObject):
 
         query_string = urlencode(params)
         url += "?{}".format(query_string) if query_string else ""
-        kwargs = {"url": url, "pods": self.name,
-                  "namespace": self.namespace, "version": self.version}
+        kwargs = {
+            "version": self.version,
+            "url": url,
+            "namespace": self.namespace,
+            "operation": "pods/{}".format(self.name),
+        }
         r = self.api.get(**kwargs)
         r.raise_for_status()
         return r.text
 
 
-class ReplicationController(NamespacedAPIObject, ReplicatedAPIObject):
+class ReplicationController(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
     version = "v1"
     endpoint = "replicationcontrollers"
     kind = "ReplicationController"
 
-    def scale(self, replicas=None):
-        if replicas is None:
-            replicas = self.replicas
-        self.exists(ensure=True)
-        self.replicas = replicas
-        self.update()
-        while True:
-            self.reload()
-            if self.replicas == replicas:
-                break
-            time.sleep(1)
+
+class ReplicaSet(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
+
+    version = "extensions/v1beta1"
+    endpoint = "replicasets"
+    kind = "ReplicaSet"
 
 
 class Secret(NamespacedAPIObject):
