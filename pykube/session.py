@@ -2,10 +2,12 @@ import os
 import json
 import requests
 import datetime
+import time
 
 from tzlocal import get_localzone
 from requests_oauthlib import OAuth2Session
 from oauthlib.oauth2 import BackendApplicationClient
+from oauth2client.service_account import ServiceAccountCredentials
 
 from .exceptions import PyKubeError
 
@@ -55,12 +57,15 @@ def _set_bearer_token(session, token):
 
 
 class GCPSession(object):
+    """
+    Creates a session for Google Cloud Platform
+    """
 
     oauth = None
     token_url = u'https://www.googleapis.com/oauth2/v4/token'
-    userinfo_url = u'https://www.googleapis.com/oauth2/v1/userinfo'
-    gcloud_well_known_file = os.path.join(os.path.expanduser('~'),
-                                          ".config/gcloud/application_default_credentials.json")
+    tokeninfo_url = u"https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}"
+    gcloud_credentials_file = os.path.join(os.path.expanduser('~'),
+                                           ".config/gcloud/application_default_credentials.json")
 
     scope = ["https://www.googleapis.com/auth/userinfo.email",
              "https://www.googleapis.com/auth/cloud-platform",
@@ -69,15 +74,23 @@ class GCPSession(object):
              "https://www.googleapis.com/auth/plus.me"]
 
     def __init__(self, config, gcloud_file=None):
+        """
+        Initialize the parameters for this session using OAuth2
+
+        :Parameters:
+           - `config`: The configuration instance
+           - `gcloud_file`: Override gcloud credentials file location
+        """
         self.config = config
         if gcloud_file:
-            self.gcloud_well_known_file = gcloud_file
-        self.client_id, self.client_secret, self.refresh_token = self._load_default_gcloud_credentials()
-        client = BackendApplicationClient(client_id=self.client_id)
+            self.gcloud_credentials_file = gcloud_file
+        self.credentials = self._load_default_gcloud_credentials()
+
+        client = BackendApplicationClient(client_id=self.credentials.get('client_id'))
         self.oauth = OAuth2Session(client=client, scope=self.scope)
         token = {
             'access_token': self.access_token,
-            'refresh_token': self.refresh_token,
+            'refresh_token': self.credentials.get('refresh_token'),
             'token_type': 'Bearer',
             'expires_in': '3600',
         }
@@ -86,13 +99,22 @@ class GCPSession(object):
 
     @property
     def access_token(self):
-        return self.config.user['auth-provider'].get('config', {}).get('access-token')
+        auth = self.config.user['auth-provider'].get('config')
+        # The config key might be there with None value
+        if not auth:
+            return None
+        return auth.get('access-token')
 
     @property
     def expired_token(self):
-        return self.oauth.get(self.userinfo_url).status_code == 401
+        token_info = self.oauth.get(self.tokeninfo_url.format(self.access_token)).text
+        token_js = json.loads(token_info)
+        return 'error' in token_js
 
     def create(self):
+        """
+        Creates a requests oauth2 object
+        """
         if not self.access_token or self.expired_token:
             # Getting access token from gcp
             self._update_token()
@@ -100,15 +122,35 @@ class GCPSession(object):
         return self.oauth
 
     def _update_token(self):
-        tok = self.oauth.refresh_token(self.token_url, client_id=self.client_id,
-                                       client_secret=self.client_secret,
-                                       refresh_token=self.refresh_token)
+        """
+        If the OAuth2 access token is missing or expired, this retrieves a new one
+        """
+        if self.credentials.get("type") == "authorized_user":
+            tok = self.oauth.refresh_token(self.token_url, client_id=self.credentials.get('client_id'),
+                                           client_secret=self.credentials.get('client_secret'),
+                                           refresh_token=self.credentials.get('refresh_token'))
+        elif self.credentials.get("type") == "service_account":
+            credentials = ServiceAccountCredentials.from_json_keyfile_name(self.gcloud_credentials_file,
+                                                                           scopes=self.scope)
+            new_token = credentials.get_access_token()
+
+            tok = {
+                'access_token': new_token.access_token,
+                'token_type': 'Bearer',
+                'expires_at': time.time() + new_token.expires_in,
+            }
+            self.oauth.token = tok
+        else:
+            raise PyKubeError("Missing type in credentials file")
+
         self._persist_token(tok)
 
     def _persist_token(self, tok):
         user_name = self.config.contexts[self.config.current_context]['user']
         user = [u['user'] for u in self.config.doc['users'] if u['name'] == user_name][0]
         if 'config' not in user['auth-provider']:
+            user['auth-provider']['config'] = {}
+        if not user['auth-provider']['config']:
             user['auth-provider']['config'] = {}
         user['auth-provider']['config']['access-token'] = tok['access_token']
         date_expires = datetime.datetime.fromtimestamp(tok['expires_at'])
@@ -118,8 +160,12 @@ class GCPSession(object):
         self.config.reload()
 
     def _load_default_gcloud_credentials(self):
-        if not os.path.exists(self.gcloud_well_known_file):
+        # Checking if GOOGLE_APPLICATION_CREDENTIALS overrides gclod cred file
+        if os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
+            self.gcloud_credentials_file = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+
+        if not os.path.exists(self.gcloud_credentials_file):
             raise PyKubeError('Google cloud well known file missing, configure your gcloud session')
-        with open(self.gcloud_well_known_file) as f:
+        with open(self.gcloud_credentials_file) as f:
             data = json.loads(f.read())
-        return data['client_id'], data['client_secret'], data['refresh_token']
+        return data

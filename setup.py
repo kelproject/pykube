@@ -30,5 +30,6 @@ setup(
         "PyYAML",
         "six",
         "tzlocal",
+        "oauth2client",
     ],
 )
