@@ -23,5 +23,5 @@ class TestHttp(TestCase):
     def test_build_session_basic(self):
         """
         """
-        session = HTTPClient(self.cfg).build_session()
+        session = HTTPClient(self.cfg).session
         self.assertEqual(session.auth, ('adm', 'somepassword'))

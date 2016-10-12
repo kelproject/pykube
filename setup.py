@@ -26,7 +26,10 @@ setup(
     packages=find_packages(),
     install_requires=[
         "requests",
+        "requests-oauthlib",
         "PyYAML",
         "six",
+        "tzlocal",
+        "oauth2client",
     ],
 )
