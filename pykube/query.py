@@ -141,16 +141,15 @@ class WatchQuery(BaseQuery):
         super(WatchQuery, self).__init__(*args, **kwargs)
 
     def object_stream(self):
-        params = {}
+        params = {"watch": "true"}
         if self.resource_version is not None:
             params["resourceVersion"] = self.resource_version
-        url = self._build_api_url(params=params)
-        if self.namespace is all_:
-            url = "watch/" + url
         kwargs = {
-            "url": url,
+            "url": self._build_api_url(params=params),
             "stream": True,
         }
+        if self.namespace is not all_:
+            kwargs["namespace"] = self.namespace
         if self.api_obj_class.version:
             kwargs["version"] = self.api_obj_class.version
         r = self.api.get(**kwargs)
