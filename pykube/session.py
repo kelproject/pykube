@@ -67,11 +67,9 @@ class GCPSession(object):
     gcloud_credentials_file = os.path.join(os.path.expanduser('~'),
                                            ".config/gcloud/application_default_credentials.json")
 
-    scope = ["https://www.googleapis.com/auth/userinfo.email",
-             "https://www.googleapis.com/auth/cloud-platform",
-             "https://www.googleapis.com/auth/appengine.admin",
-             "https://www.googleapis.com/auth/compute",
-             "https://www.googleapis.com/auth/plus.me"]
+    scope = [
+        "https://www.googleapis.com/auth/cloud-platform",
+    ]
 
     def __init__(self, config, gcloud_file=None):
         """
