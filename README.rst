@@ -70,6 +70,9 @@ Selector query:
         namespace="gondor-system",
         selector={"gondor.io/name__in": {"api-web", "api-worker"}},
     )
+    pending_pods = pykube.objects.Pod.objects(api).filter(
+        field_selector={"status.phase": "Pending"}
+    )
 
 Create a ReplicationController:
 

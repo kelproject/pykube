@@ -19,16 +19,19 @@ class BaseQuery(object):
         self.api_obj_class = api_obj_class
         self.namespace = namespace
         self.selector = everything
+        self.field_selector = everything
 
     def all(self):
         return self._clone()
 
-    def filter(self, namespace=None, selector=None):
+    def filter(self, namespace=None, selector=None, field_selector=None):
         clone = self._clone()
         if namespace is not None:
             clone.namespace = namespace
         if selector is not None:
             clone.selector = selector
+        if field_selector is not None:
+            clone.field_selector = field_selector
         return clone
 
     def _clone(self):
@@ -41,6 +44,8 @@ class BaseQuery(object):
             params = {}
         if self.selector is not everything:
             params["labelSelector"] = as_selector(self.selector)
+        if self.field_selector is not everything:
+            params["fieldSelector"] = as_selector(self.field_selector)
         query_string = urlencode(params)
         return "{}{}".format(self.api_obj_class.endpoint, "?{}".format(query_string) if query_string else "")
 
@@ -190,7 +195,7 @@ def as_selector(value):
             op = bits[1]
         # map operator to selector
         if op == "eq":
-            s.append("{} = {}".format(label, v))
+            s.append("{}={}".format(label, v))
         elif op == "neq":
             s.append("{} != {}".format(label, v))
         elif op == "in":
