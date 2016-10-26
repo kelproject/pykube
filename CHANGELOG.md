@@ -2,6 +2,19 @@
 
 ## Development
 
+## 0.14.0
+
+## Features
+
+* added Kubernetes API objects:
+  * `Role`
+  * `ClusterRole`
+  * `RoleBinding`
+  * `ClusterRoleBinding`
+* `HTTPClient` learned to handle GKE OAuth authentication
+* `Pod` learned to retrieve logs for containers
+* `Query.filter` learned to scope based on fields
+
 ## 0.13.0
 
 ### Features
