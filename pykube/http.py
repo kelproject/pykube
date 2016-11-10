@@ -52,6 +52,15 @@ class HTTPClient(object):
             warnings.warn("IP address hostnames are not supported with Python < 3.5. Please see https://github.com/kelproject/pykube/issues/29 for more info.", RuntimeWarning)
         self._url = pr.geturl()
 
+    @property
+    def version(self):
+        """
+        Get Kubernetes API version
+        """
+        response = self.get('/version')
+        data = response.json()
+        return (data['major'], data['minor'])
+
     def get_kwargs(self, **kwargs):
         """
         Creates a full URL to request based on arguments.
