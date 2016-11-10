@@ -34,9 +34,12 @@ class BaseQuery(object):
             clone.field_selector = field_selector
         return clone
 
-    def _clone(self):
-        clone = self.__class__(self.api, self.api_obj_class, namespace=self.namespace)
+    def _clone(self, cls=None):
+        if cls is None:
+            cls = self.__class__
+        clone = cls(self.api, self.api_obj_class, namespace=self.namespace)
         clone.selector = self.selector
+        clone.field_selector = self.field_selector
         return clone
 
     def _build_api_url(self, params=None):
@@ -86,12 +89,12 @@ class Query(BaseQuery):
             return None
 
     def watch(self, since=None):
-        kwargs = {"namespace": self.namespace}
+        query = self._clone(WatchQuery)
         if since is now:
-            kwargs["resource_version"] = self.response["metadata"]["resourceVersion"]
+            query.resource_version = self.response["metadata"]["resourceVersion"]
         elif since is not None:
-            kwargs["resource_version"] = since
-        return WatchQuery(self.api, self.api_obj_class, **kwargs)
+            query.resource_version = since
+        return query
 
     def execute(self):
         kwargs = {"url": self._build_api_url()}
