@@ -14,6 +14,7 @@
 * `HTTPClient` learned to handle GKE OAuth authentication
 * `Pod` learned to retrieve logs for containers
 * `Query.filter` learned to scope based on fields
+* Fixed handling of Kubernetes certificates for Python versions < 3.5
 
 ## 0.13.0
 
