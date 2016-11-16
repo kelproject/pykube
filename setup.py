@@ -25,7 +25,7 @@ setup(
     zip_safe=False,
     packages=find_packages(),
     install_requires=[
-        "requests",
+        "requests>=2.12",
         "requests-oauthlib",
         "PyYAML",
         "six",

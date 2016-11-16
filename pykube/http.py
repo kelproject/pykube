@@ -4,8 +4,6 @@ HTTP request related code.
 
 import posixpath
 import re
-import sys
-import warnings
 
 from six.moves.urllib.parse import urlparse
 
@@ -48,8 +46,6 @@ class HTTPClient(object):
     @url.setter
     def url(self, value):
         pr = urlparse(value)
-        if sys.version_info < (3, 5) and ("::" in pr.hostname or _ipv4_re.match(pr.hostname)):
-            warnings.warn("IP address hostnames are not supported with Python < 3.5. Please see https://github.com/kelproject/pykube/issues/29 for more info.", RuntimeWarning)
         self._url = pr.geturl()
 
     def get_kwargs(self, **kwargs):
