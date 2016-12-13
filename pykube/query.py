@@ -110,7 +110,7 @@ class Query(BaseQuery):
         Execute the API request and return an iterator over the objects. This
         method does not use the query cache.
         """
-        for obj in self.execute().json()["items"]:
+        for obj in (self.execute().json().get("items") or []):
             yield self.api_obj_class(self.api, obj)
 
     @property
@@ -118,7 +118,7 @@ class Query(BaseQuery):
         if not hasattr(self, "_query_cache"):
             cache = {"objects": []}
             cache["response"] = self.execute().json()
-            for obj in cache["response"]["items"]:
+            for obj in (cache["response"].get("items") or []):
                 cache["objects"].append(self.api_obj_class(self.api, obj))
             self._query_cache = cache
         return self._query_cache
