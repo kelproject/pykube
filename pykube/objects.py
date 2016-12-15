@@ -334,6 +334,13 @@ class PetSet(NamespacedAPIObject):
     kind = "PetSet"
 
 
+class StatefulSet(NamespacedAPIObject):
+
+    version = "apps/v1beta1"
+    endpoint = "statefulsets"
+    kind = "StatefulSet"
+
+
 class Role(NamespacedAPIObject):
 
     version = "rbac.authorization.k8s.io/v1alpha1"

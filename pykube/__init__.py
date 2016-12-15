@@ -24,6 +24,7 @@ from .objects import (  # noqa
     Secret,
     Service,
     ServiceAccount,
+    StatefulSet,
     ThirdPartyResource,
     Role,
     ClusterRole,
