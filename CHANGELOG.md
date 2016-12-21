@@ -11,10 +11,15 @@
   * `ClusterRole`
   * `RoleBinding`
   * `ClusterRoleBinding`
+  * `StatefulSet`
 * `HTTPClient` learned to handle GKE OAuth authentication
+* `HTTPClient` learned `version` to report Kubernetes version
 * `Pod` learned to retrieve logs for containers
 * `Query.filter` learned to scope based on fields
 * Fixed handling of Kubernetes certificates for Python versions < 3.5
+* Kubernetes 1.5 compatibility
+* `APIObject` learned `metadata` and `labels` properties
+* `KubeConfig` learned `namespace` and depedent objects use it more sanely
 
 ## 0.13.0
 
