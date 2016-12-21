@@ -49,6 +49,14 @@ class APIObject(object):
         return self.obj["metadata"]["name"]
 
     @property
+    def metadata(self):
+        return self.obj["metadata"]
+
+    @property
+    def labels(self):
+        return self.obj["metadata"].get("labels", {})
+
+    @property
     def annotations(self):
         return self.obj["metadata"].get("annotations", {})
 
