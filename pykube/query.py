@@ -163,22 +163,6 @@ class WatchQuery(BaseQuery):
         return iter(self.object_stream())
 
 
-class ObjectManager(object):
-
-    def __init__(self, namespace=None):
-        self.namespace = namespace
-
-    def __call__(self, api, namespace=None):
-        if namespace is None:
-            namespace = self.namespace
-        return Query(api, self.api_obj_class, namespace=namespace)
-
-    def __get__(self, obj, api_obj_class):
-        assert obj is None, "cannot invoke objects on resource object."
-        self.api_obj_class = api_obj_class
-        return self
-
-
 def as_selector(value):
     if isinstance(value, str):
         return value

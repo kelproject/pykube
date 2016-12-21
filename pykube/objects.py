@@ -1,17 +1,26 @@
 import copy
 import json
 import os.path as op
-
+from inspect import getmro
 import six
 
 from six.moves.urllib.parse import urlencode
 from .exceptions import ObjectDoesNotExist
 from .mixins import ReplicatedMixin, ScalableMixin
-from .query import ObjectManager
+from .query import Query
 from .utils import obj_merge
 
 
-DEFAULT_NAMESPACE = "default"
+class ObjectManager(object):
+    def __call__(self, api, namespace=None):
+        if namespace is None and NamespacedAPIObject in getmro(self.api_obj_class):
+            namespace = api.config.namespace
+        return Query(api, self.api_obj_class, namespace=namespace)
+
+    def __get__(self, obj, api_obj_class):
+        assert obj is None, "cannot invoke objects on resource object."
+        self.api_obj_class = api_obj_class
+        return self
 
 
 @six.python_2_unicode_compatible
@@ -99,14 +108,12 @@ class APIObject(object):
 
 class NamespacedAPIObject(APIObject):
 
-    objects = ObjectManager(namespace=DEFAULT_NAMESPACE)
-
     @property
     def namespace(self):
         if self.obj["metadata"].get("namespace"):
             return self.obj["metadata"]["namespace"]
         else:
-            return DEFAULT_NAMESPACE
+            return self.api.config.namespace
 
 
 class ConfigMap(NamespacedAPIObject):

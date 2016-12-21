@@ -109,7 +109,7 @@ class KubeConfig(object):
         Creates an instance of the KubeConfig class.
         """
         self.doc = doc
-        self.current_context = None
+        self._current_context = None
         if "current-context" in doc and doc["current-context"]:
             self.set_current_context(doc["current-context"])
 
@@ -120,7 +120,13 @@ class KubeConfig(object):
         :Parameters:
            - `value`: The value for the current context
         """
-        self.current_context = value
+        self._current_context = value
+
+    @property
+    def current_context(self):
+        if self._current_context is None:
+            raise exceptions.PyKubeError("current context not set; call set_current_context")
+        return self._current_context
 
     @property
     def clusters(self):
@@ -170,8 +176,6 @@ class KubeConfig(object):
         Returns the current selected cluster by exposing as a
         read-only property.
         """
-        if self.current_context is None:
-            raise exceptions.PyKubeError("current context not set; call set_current_context")
         return self.clusters[self.contexts[self.current_context]["cluster"]]
 
     @property
@@ -179,9 +183,14 @@ class KubeConfig(object):
         """
         Returns the current user by exposing as a read-only property.
         """
-        if self.current_context is None:
-            raise exceptions.PyKubeError("current context not set; call set_current_context")
         return self.users.get(self.contexts[self.current_context].get("user", ""), {})
+
+    @property
+    def namespace(self):
+        """
+        Returns the current context namespace by exposing as a read-only property.
+        """
+        return self.contexts[self.current_context].get("namespace", "default")
 
     def persist_doc(self):
         if not hasattr(self, "filename") or not self.filename:

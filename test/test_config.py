@@ -109,3 +109,9 @@ class TestConfig(TestCase):
         test_config = config.KubeConfig.from_file(DEFAULTUSER_CONFIG_FILE_PATH)
         test_config.set_current_context("a_context")
         self.assertIsNotNone(test_config.user)
+
+    def test_namespace(self):
+        self.cfg.set_current_context("thename")
+        self.assertEqual("default", self.cfg.namespace)
+        self.cfg.set_current_context("context_with_namespace")
+        self.assertEqual("foospace", self.cfg.namespace)
