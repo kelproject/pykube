@@ -126,6 +126,13 @@ Delete a ReplicationController:
     }
     pykube.ReplicationController(api, obj).delete()
 
+Check server version:
+
+.. code:: python
+
+    api = pykube.HTTPClient(pykube.KubeConfig.from_file("/Users/<username>/.kube/config"))
+    api.version
+
 Requirements
 ------------
 

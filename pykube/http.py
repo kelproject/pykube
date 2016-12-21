@@ -48,6 +48,15 @@ class HTTPClient(object):
         pr = urlparse(value)
         self._url = pr.geturl()
 
+    @property
+    def version(self):
+        """
+        Get Kubernetes API version
+        """
+        response = self.get('/version')
+        data = response.json()
+        return (data['major'], data['minor'])
+
     def get_kwargs(self, **kwargs):
         """
         Creates a full URL to request based on arguments.
