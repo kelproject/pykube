@@ -28,7 +28,7 @@ setup(
         "requests>=2.12",
         "requests-oauthlib",
         "PyYAML",
-        "six",
+        "six>=1.10.0",
         "tzlocal",
         "oauth2client",
     ],
