@@ -16,6 +16,8 @@ from .objects import (  # noqa
     Job,
     Namespace,
     Node,
+    PersistentVolume,
+    PersistentVolumeClaim,
     PetSet,
     Pod,
     ReplicationController,
