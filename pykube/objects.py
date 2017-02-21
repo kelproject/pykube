@@ -389,3 +389,10 @@ class ClusterRoleBinding(APIObject):
     version = "rbac.authorization.k8s.io/v1alpha1"
     endpoint = "clusterrolebindings"
     kind = "ClusterRoleBinding"
+
+
+class PodSecurityPolicy(APIObject):
+
+    version = "extensions/v1beta1"
+    endpoint = "podsecuritypolicies"
+    kind = "PodSecurityPolicy"
