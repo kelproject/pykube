@@ -173,6 +173,13 @@ class Event(NamespacedAPIObject):
     kind = "Event"
 
 
+class LimitRange(NamespacedAPIObject):
+
+    version = "v1"
+    endpoint = "limitranges"
+    kind = "LimitRange"
+
+
 class ResourceQuota(NamespacedAPIObject):
 
     version = "v1"
