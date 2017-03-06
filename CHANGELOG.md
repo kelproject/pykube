@@ -5,9 +5,14 @@
 * added Kubernetes API objects:
   * `CronJob`
   * `PodSecurityPolicy`
+  * `LimitRange`
 * `pykube` namespace exposes `PersistentVolume` and `PersistentVolumeClaim`
 * Ensure six >= 1.10.0 is installed (fixed #116)
 * `StatefulSet` learned to scale by inheriting from `ReplicatedMixin` and `ScalableMixin`
+* `Query` learned to carry forward field selector during a clone
+* `Query.watch` learned to carry forward all query parameters
+* `APIObject` learned `watch` to enable per-object watches
+* `Deployment` learned to roll back using `rollout_undo` similar to `kubectl rollout undo deployment`
 
 ## 0.14.0
 
