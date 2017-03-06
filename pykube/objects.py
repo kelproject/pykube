@@ -69,7 +69,10 @@ class APIObject(object):
         else:
             operation = kwargs.pop("operation", "")
             kw["url"] = op.normpath(op.join(self.endpoint, self.name, operation))
-
+        params = kwargs.pop("params", None)
+        if params is not None:
+            query_string = urlencode(params)
+            kw["url"] = "{}{}".format(kw["url"], "?{}".format(query_string) if query_string else "")
         if self.base:
             kw["base"] = self.base
         kw["version"] = self.version
@@ -98,6 +101,14 @@ class APIObject(object):
         r = self.api.get(**self.api_kwargs())
         self.api.raise_for_status(r)
         self.set_obj(r.json())
+
+    def watch(self):
+        return self.__class__.objects(
+            self.api,
+            namespace=self.namespace
+        ).filter(field_selector={
+            "metadata.name": self.name
+        }).watch()
 
     def update(self):
         self.obj = obj_merge(self.obj, self._original_obj)

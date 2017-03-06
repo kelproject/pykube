@@ -74,6 +74,21 @@ Selector query:
         field_selector={"status.phase": "Pending"}
     )
 
+Watch query:
+
+.. code:: python
+
+    watch = pykube.Job.objects(
+            api,
+            namespace="gondor-system")
+        .filter(field_selector={"metadata.name":"my-job"})
+        .watch()
+    
+    # watch is a generator:
+    for watch_event in watch:
+        print(watch.type) # 'ADDED', 'DELETED', 'MODIFIED'
+        print(watch.object) # pykube.Job object
+
 Create a ReplicationController:
 
 .. code:: python
