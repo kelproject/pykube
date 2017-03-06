@@ -15,6 +15,7 @@ from .objects import (  # noqa
     HorizontalPodAutoscaler,
     Ingress,
     Job,
+    LimitRange,
     Namespace,
     Node,
     PersistentVolume,
