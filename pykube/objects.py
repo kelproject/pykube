@@ -169,6 +169,33 @@ class Deployment(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
             self.obj["status"]["updatedReplicas"] == self.replicas
         )
 
+    def rollout_undo(self, target_revision=None):
+        """Produces same action as kubectl rollout undo deployment command.
+        Input variable is revision to rollback to (in kubectl, --to-revision)
+        """
+        if target_revision is None:
+            revision = {}
+        else:
+            revision = {
+                "revision": target_revision
+            }
+
+        params = {
+            "kind": "DeploymentRollback",
+            "apiVersion": self.version,
+            "name": self.name,
+            "rollbackTo": revision
+        }
+
+        kwargs = {
+            "version": self.version,
+            "namespace": self.namespace,
+            "operation": "rollback",
+        }
+        r = self.api.post(**self.api_kwargs(data=json.dumps(params), **kwargs))
+        r.raise_for_status()
+        return r.text
+
 
 class Endpoint(NamespacedAPIObject):
 
