@@ -2,6 +2,13 @@
 
 ## Development
 
+* added Kubernetes API objects:
+  * `CronJob`
+  * `PodSecurityPolicy`
+* `pykube` namespace exposes `PersistentVolume` and `PersistentVolumeClaim`
+* Ensure six >= 1.10.0 is installed (fixed #116)
+* `StatefulSet` learned to scale by inheriting from `ReplicatedMixin` and `ScalableMixin`
+
 ## 0.14.0
 
 ## Features
