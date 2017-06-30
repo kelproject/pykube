@@ -1,9 +1,24 @@
+import sys
+
 from setuptools import setup, find_packages
 
 
 with open("README.rst") as fp:
     long_description = fp.read()
 
+install_requires = [
+    "requests>=2.12",
+    "requests-oauthlib",
+    "PyYAML",
+    "six>=1.10.0",
+    "tzlocal",
+    "oauth2client",
+]
+
+if sys.version_info < (3,):
+    install_requires.extend([
+        "ipaddress",
+    ])
 
 setup(
     name="pykube",
@@ -29,12 +44,5 @@ setup(
             "httpie_pykube = pykube.contrib.httpie_plugin:PyKubeTransportPlugin"
         ],
     },
-    install_requires=[
-        "requests>=2.12",
-        "requests-oauthlib",
-        "PyYAML",
-        "six>=1.10.0",
-        "tzlocal",
-        "oauth2client",
-    ],
+    install_requires=install_requires,
 )
