@@ -86,8 +86,8 @@ Watch query:
     
     # watch is a generator:
     for watch_event in watch:
-        print(watch.type) # 'ADDED', 'DELETED', 'MODIFIED'
-        print(watch.object) # pykube.Job object
+        print(watch_event.type) # 'ADDED', 'DELETED', 'MODIFIED'
+        print(watch_event.object) # pykube.Job object
 
 Create a ReplicationController:
 
