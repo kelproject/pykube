@@ -2,6 +2,7 @@ import json
 
 from collections import namedtuple
 
+from six import string_types
 from six.moves.urllib.parse import urlencode
 
 from .exceptions import ObjectDoesNotExist
@@ -167,7 +168,7 @@ class WatchQuery(BaseQuery):
 
 
 def as_selector(value):
-    if isinstance(value, str):
+    if isinstance(value, string_types):
         return value
     s = []
     for k, v in value.items():
