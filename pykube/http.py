@@ -57,6 +57,14 @@ class HTTPClient(object):
         data = response.json()
         return (data['major'], data['minor'])
 
+    def resource_list(self, api_version):
+        cached_attr = "_cached_resource_list"
+        if not hasattr(self, cached_attr):
+            r = self.get(version=api_version)
+            r.raise_for_status()
+            setattr(self, cached_attr, r.json())
+        return getattr(self, cached_attr)
+
     def get_kwargs(self, **kwargs):
         """
         Creates a full URL to request based on arguments.

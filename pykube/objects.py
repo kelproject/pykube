@@ -135,6 +135,31 @@ class NamespacedAPIObject(APIObject):
             return self.api.config.namespace
 
 
+def object_factory(api, api_version, kind):
+    """
+    Dynamically builds a Python class for the given Kubernetes object in an API.
+
+    For example:
+
+        api = pykube.HTTPClient(...)
+        NetworkPolicy = pykube.object_factory(api, "networking.k8s.io/v1", "NetworkPolicy")
+
+    This enables construction of any Kubernetes object kind without explicit support
+    from pykube.
+
+    Currently, the HTTPClient passed to this function will not be bound to the returned type.
+    It is planned to fix this, but in the mean time pass it as you would normally.
+    """
+    resource_list = api.resource_list(api_version)
+    resource = next((resource for resource in resource_list["resources"] if resource["kind"] == kind), None)
+    base = NamespacedAPIObject if resource["namespaced"] else APIObject
+    return type(kind, (base,), {
+        "version": api_version,
+        "endpoint": resource["name"],
+        "kind": kind
+    })
+
+
 class ConfigMap(NamespacedAPIObject):
 
     version = "v1"
