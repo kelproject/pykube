@@ -18,7 +18,7 @@ class KubeConfig(object):
     """
 
     @classmethod
-    def from_service_account(cls, path="/var/run/secrets/kubernetes.io/serviceaccount"):
+    def from_service_account(cls, path="/var/run/secrets/kubernetes.io/serviceaccount", **kwargs):
         with open(os.path.join(path, "token")) as fp:
             token = fp.read()
         host = os.environ.get("PYKUBE_KUBERNETES_SERVICE_HOST")
@@ -56,11 +56,11 @@ class KubeConfig(object):
             ],
             "current-context": "self",
         }
-        self = cls(doc)
+        self = cls(doc, **kwargs)
         return self
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename, **kwargs):
         """
         Creates an instance of the KubeConfig class from a kubeconfig file.
 
@@ -72,12 +72,12 @@ class KubeConfig(object):
             raise exceptions.PyKubeError("Configuration file {} not found".format(filename))
         with open(filename) as f:
             doc = yaml.safe_load(f.read())
-        self = cls(doc)
+        self = cls(doc, **kwargs)
         self.filename = filename
         return self
 
     @classmethod
-    def from_url(cls, url):
+    def from_url(cls, url, **kwargs):
         """
         Creates an instance of the KubeConfig class from a single URL (useful
         for interacting with kubectl proxy).
@@ -101,16 +101,18 @@ class KubeConfig(object):
             ],
             "current-context": "self",
         }
-        self = cls(doc)
+        self = cls(doc, **kwargs)
         return self
 
-    def __init__(self, doc):
+    def __init__(self, doc, current_context=None):
         """
         Creates an instance of the KubeConfig class.
         """
         self.doc = doc
         self._current_context = None
-        if "current-context" in doc and doc["current-context"]:
+        if current_context is not None:
+            self.set_current_context(current_context)
+        elif "current-context" in doc and doc["current-context"]:
             self.set_current_context(doc["current-context"])
 
     def set_current_context(self, value):
