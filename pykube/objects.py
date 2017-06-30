@@ -376,6 +376,13 @@ class ReplicationController(NamespacedAPIObject, ReplicatedMixin, ScalableMixin)
     endpoint = "replicationcontrollers"
     kind = "ReplicationController"
 
+    @property
+    def ready(self):
+        return (
+            self.obj['status']['observedGeneration'] >= self.obj['metadata']['generation'] and
+            self.obj['status']['readyReplicas'] == self.replicas
+        )
+
 
 class ReplicaSet(NamespacedAPIObject, ReplicatedMixin, ScalableMixin):
 
