@@ -53,9 +53,10 @@ class HTTPClient(object):
         """
         Get Kubernetes API version
         """
-        response = self.get('/version')
+        response = self.get(version="", base="/version")
+        response.raise_for_status()
         data = response.json()
-        return (data['major'], data['minor'])
+        return (data["major"], data["minor"])
 
     def resource_list(self, api_version):
         cached_attr = "_cached_resource_list"
