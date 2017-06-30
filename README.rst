@@ -78,12 +78,9 @@ Watch query:
 
 .. code:: python
 
-    watch = pykube.Job.objects(
-            api,
-            namespace="gondor-system")
-        .filter(field_selector={"metadata.name":"my-job"})
-        .watch()
-    
+    watch = pykube.Job.objects(api, namespace="gondor-system")
+    watch = watch.filter(field_selector={"metadata.name": "my-job"}).watch()
+
     # watch is a generator:
     for watch_event in watch:
         print(watch_event.type) # 'ADDED', 'DELETED', 'MODIFIED'
