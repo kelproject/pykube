@@ -62,6 +62,13 @@ Query for all ready pods in a custom namespace:
     pods = pykube.Pod.objects(api).filter(namespace="gondor-system")
     ready_pods = filter(operator.attrgetter("ready"), pods)
 
+Access any attribute of the Kubernetes object:
+
+.. code:: python
+
+    pod = pykube.Pod.objects(api).filter(namespace="gondor-system").get(name="my-pod")
+    pod.obj["spec"]["containers"][0]["image"]
+
 Selector query:
 
 .. code:: python
