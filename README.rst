@@ -152,6 +152,19 @@ Check server version:
     api = pykube.HTTPClient(pykube.KubeConfig.from_file("/Users/<username>/.kube/config"))
     api.version
 
+HTTPie
+------
+
+pykube can be used together with HTTPie for Kubernetes command line querying goodness. For example:
+
+.. code:: shell
+
+    pip install httpie
+    http pykube://minikube/api/v1/services
+
+The above example will construct an HTTP request to the cluster behind the ``minikube`` context and
+show you the response containing all services.
+
 Requirements
 ------------
 
