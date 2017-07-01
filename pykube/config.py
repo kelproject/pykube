@@ -183,7 +183,7 @@ class KubeConfig(object):
     @property
     def user(self):
         """
-        Returns the current user by exposing as a read-only property.
+        Returns the current user set by current context
         """
         return self.users.get(self.contexts[self.current_context].get("user", ""), {})
 

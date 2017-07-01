@@ -6,32 +6,17 @@ from httpie.plugins import TransportPlugin
 
 import pykube
 
+from pykube.http import KubernetesHTTPAdapterSendMixin
 
-class PyKubeAdapter(HTTPieHTTPAdapter):
+
+class PyKubeAdapter(KubernetesHTTPAdapterSendMixin, HTTPieHTTPAdapter):
 
     def send(self, request, **kwargs):
         u = urlsplit(request.url)
         context = u.netloc
         config = pykube.KubeConfig.from_file("~/.kube/config", current_context=context)
         request.url = config.cluster["server"] + u.path
-
-        # setup cluster API authentication
-
-        if "token" in config.user and config.user["token"]:
-            request.headers["Authorization"] = "Bearer {}".format(config.user["token"])
-        elif "client-certificate" in config.user:
-            kwargs["cert"] = (
-                config.user["client-certificate"].filename(),
-                config.user["client-key"].filename(),
-            )
-
-        # setup certificate verification
-
-        if "certificate-authority" in config.cluster:
-            kwargs["verify"] = config.cluster["certificate-authority"].filename()
-        elif "insecure-skip-tls-verify" in config.cluster:
-            kwargs["verify"] = not config.cluster["insecure-skip-tls-verify"]
-
+        kwargs["kube_config"] = config
         return super(PyKubeAdapter, self).send(request, **kwargs)
 
 
