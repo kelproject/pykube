@@ -43,4 +43,10 @@ setup(
         ],
     },
     install_requires=install_requires,
+    extras_require={
+        "gcp": [
+            "google-auth",
+            "jsonpath-ng",
+        ]
+    },
 )

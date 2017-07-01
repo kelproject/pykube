@@ -1,3 +1,11 @@
+import re
+
+try:
+    from jsonpath_ng import parse as jsonpath
+    jsonpath_installed = True
+except ImportError:
+    jsonpath_installed = False
+
 from six.moves import zip_longest
 
 
@@ -37,3 +45,12 @@ def obj_check(a, b):
         else:
             c = a
     return c
+
+
+def jsonpath_parse(template, obj):
+    def repl(m):
+        path = m.group(2)
+        if not path.startswith("$"):
+            path = "$" + path
+        return jsonpath(path).find(obj)[0].value
+    return re.sub(r"(\{([^\}]*)\})", repl, template)

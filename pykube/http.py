@@ -2,8 +2,12 @@
 HTTP request related code.
 """
 
+import datetime
+import json
 import posixpath
 import re
+import shlex
+import subprocess
 
 try:
     import google.auth
@@ -18,6 +22,7 @@ from six.moves import http_client
 from six.moves.urllib.parse import urlparse
 
 from .exceptions import HTTPError
+from .utils import jsonpath_installed, jsonpath_parse
 
 
 _ipv4_re = re.compile(r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?).){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
@@ -34,25 +39,25 @@ class KubernetesHTTPAdapterSendMixin(object):
         config.persist_doc()
         config.reload()
 
-    def _auth_gcp(self, request, auth_config, config):
+    def _auth_gcp(self, request, token, expiry, config):
         original_request = request.copy()
 
         credentials = google.auth.default()[0]
-        credentials.token = auth_config.get("access-token")
-        credentials.expiry = auth_config.get("expiry")
+        credentials.token = token
+        credentials.expiry = expiry
 
         should_persist = not credentials.valid
 
         auth_request = GoogleAuthRequest()
         credentials.before_request(auth_request, request.method, request.url, request.headers)
 
-        if should_persist:
+        if should_persist and config:
             self._persist_credentials(config, credentials.token, credentials.expiry)
 
         def retry(send_kwargs):
             credentials.refresh(auth_request)
             response = self.send(original_request, **send_kwargs)
-            if response.ok:
+            if response.ok and config:
                 self._persist_credentials(config, credentials.token, credentials.expiry)
             return response
 
@@ -74,10 +79,32 @@ class KubernetesHTTPAdapterSendMixin(object):
         elif "auth-provider" in config.user:
             auth_provider = config.user["auth-provider"]
             if auth_provider.get("name") == "gcp":
-                if not google_auth_installed:
-                    raise ImportError("google-auth not installed")
+                dependencies = [
+                    google_auth_installed,
+                    jsonpath_installed,
+                ]
+                if not all(dependencies):
+                    raise ImportError("missing dependencies for GCP support (try pip install pykube[gcp]")
                 auth_config = auth_provider.get("config", {})
-                retry_func = self._auth_gcp(request, auth_config, config)
+                if "cmd-path" in auth_config:
+                    output = subprocess.check_output(
+                        [auth_config["cmd-path"]] + shlex.split(auth_config["cmd-args"])
+                    )
+                    parsed = json.loads(output)
+                    token = jsonpath_parse(auth_config["token-key"], parsed)
+                    expiry = datetime.datetime.strptime(
+                        jsonpath_parse(auth_config["expiry-key"], parsed),
+                        "%Y-%m-%dT%H:%M:%SZ"
+                    )
+                    retry_func = self._auth_gcp(request, token, expiry, None)
+                else:
+                    retry_func = self._auth_gcp(
+                        request,
+                        auth_config.get("access-token"),
+                        auth_config.get("expiry"),
+                        config,
+                    )
+            # @@@ support oidc
         elif "client-certificate" in config.user:
             kwargs["cert"] = (
                 config.user["client-certificate"].filename(),
